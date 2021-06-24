@@ -85,7 +85,7 @@ function main() {
     return lines;
   }
 
-
+  let wires;
   let cerebro;
   let domo;
   {
@@ -95,8 +95,10 @@ function main() {
       scene.add(root);
       console.log(dumpObject(root).join('\n'));
       domo = root.getObjectByName("BrainDomo");
+      wires = root.getObjectByName("BrainWire");
       cerebro = root.getObjectByName('Brain');
       domo.visible = false;
+      wires.material.transparent = false;
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebro);
