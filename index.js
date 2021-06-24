@@ -4,7 +4,7 @@ import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/thre
 
 function main() {
   const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias : true});
+  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha: false});
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -42,8 +42,8 @@ function main() {
     //const light2 = new THREE.DirectionalLight(color, intensity);
     light1.position.set(0, 10, 2);
     //light2.position.set(-5,10,-2);
-    scene.add(light1);
-    scene.add(light1.target);
+    //scene.add(light1);
+    //scene.add(light1.target);
     //scene.add(light2.target);
   }
 
@@ -85,9 +85,10 @@ function main() {
     return lines;
   }
 
-
-  let cerebro;
+  let wires;
+  let cerebros;
   let domo;
+  let cerebro;
   {
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('resources/Brain_003.gltf', (gltf) => {
@@ -95,11 +96,17 @@ function main() {
       scene.add(root);
       console.log(dumpObject(root).join('\n'));
       domo = root.getObjectByName("BrainDomo");
-      cerebro = root.getObjectByName('Brain');
+      wires = root.getObjectByName("BrainWire");
+      cerebro = root.getObjectByName("BrainSolid")
+      cerebros = root.getObjectByName('Brain');
       domo.visible = false;
+      wires.material.transparent = false;
+      wires.material.opacity =0;
+      cerebro.material.transparent = true;
+      cerebro.material.opacity = 0;
       // compute the box that contains all the stuff
       // from root and below
-      const box = new THREE.Box3().setFromObject(cerebro);
+      const box = new THREE.Box3().setFromObject(cerebros);
 
       const boxSize = box.getSize(new THREE.Vector3()).length();
       const boxCenter = box.getCenter(new THREE.Vector3());
@@ -108,8 +115,6 @@ function main() {
       frameArea(boxSize * 0.025, boxSize, boxCenter, camera);
 
       // update the Trackball controls to handle the new size
-      //controls.maxDistance = boxSize;
-      //controls.minDistance = boxSize;
       controls.target.copy(boxCenter);
       controls.enableZoom = false;
       controls.enablePan = false;
@@ -137,8 +142,8 @@ function main() {
       camera.updateProjectionMatrix();
     }
 
-    if(cerebro && !seMovio){
-        cerebro.rotation.y = time/8;
+    if(cerebros && !seMovio){
+        cerebros.rotation.y = time/8;
     }
 
 
