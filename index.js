@@ -25,7 +25,7 @@ function main() {
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('white');
+  scene.background = new THREE.Color('#00485B');
 
   {
     const skyColor = 0xFFFFFF;  // light blue
@@ -43,7 +43,7 @@ function main() {
     light1.position.set(0, 10, 2);
     //light2.position.set(-5,10,-2);
     scene.add(light1);
-    //scene.add(light1.target);
+    scene.add(light1.target);
     //scene.add(light2.target);
   }
 
