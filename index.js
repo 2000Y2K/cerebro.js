@@ -18,8 +18,11 @@ function main() {
   controls.target.set(0, 5, 0);
   window.addEventListener('click', (event) => {
     seMovio = true;
-
   });
+  window.addEventListener('touch-start', (event) => {
+    seMovio = true;
+  });
+
   controls.update();
 
   const scene = new THREE.Scene();
