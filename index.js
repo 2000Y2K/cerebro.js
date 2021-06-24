@@ -1,29 +1,34 @@
-import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r127/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
 
 function main() {
   const canvas = document.querySelector('#c');
   const renderer = new THREE.WebGLRenderer({canvas});
-
+  renderer.alpha = true;
   const fov = 45;
-  const aspect = 2;  // the canvas default
+  const aspect = 1;  // the canvas default
   const near = 0.1;
   const far = 100;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(0, 10, 20);
 
+  let seMovio = false;
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, 5, 0);
+  window.addEventListener('click', (event) => {
+    seMovio = true;
+
+  });
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('light grey');
+  scene.background = new THREE.Color('white');
 
   {
-    const skyColor = 0x000000;  // light blue
-    const groundColor = 0x000000;  // brownish orange
-    const intensity = 15;
+    const skyColor = 0xFFFFFF;  // light blue
+    const groundColor = 0x1002000;  // brownish orange
+    const intensity = 1;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
   }
@@ -82,25 +87,28 @@ function main() {
   let cerebro;
   {
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('resources/Brain_002.gltf', (gltf) => {
+    gltfLoader.load('resources/Brain_002B.gltf', (gltf) => {
       const root = gltf.scene;
       scene.add(root);
-      console.log(dumpObject(root).join('\n'));
+      //console.log(dumpObject(root).join('\n'));
       cerebro = root.getObjectByName('Empty')
 
       // compute the box that contains all the stuff
       // from root and below
-      const box = new THREE.Box3().setFromObject(root);
+      const box = new THREE.Box3().setFromObject(cerebro);
 
       const boxSize = box.getSize(new THREE.Vector3()).length();
       const boxCenter = box.getCenter(new THREE.Vector3());
 
       // set the camera to frame the box
-      frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
+      frameArea(boxSize * 0.7, boxSize, boxCenter, camera);
 
       // update the Trackball controls to handle the new size
-      controls.maxDistance = boxSize * 10;
+      //controls.maxDistance = boxSize;
+      //controls.minDistance = boxSize;
       controls.target.copy(boxCenter);
+      controls.enableZoom = false;
+      controls.enablePan = false;
       controls.update();
     });
   }
@@ -125,10 +133,12 @@ function main() {
       camera.updateProjectionMatrix();
     }
 
-    if(cerebro){
+    if(cerebro && !seMovio){
         cerebro.rotation.y = time/8;
     }
 
+    renderer.alpha = true;
+    renderer.antialias = true;
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
