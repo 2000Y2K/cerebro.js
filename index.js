@@ -4,8 +4,7 @@ import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/thre
 
 function main() {
   const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({canvas});
-  renderer.alpha = true;
+  const renderer = new THREE.WebGLRenderer({canvas, antialias : true});
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -40,12 +39,12 @@ function main() {
     const color = 0xFFFFFF;
     const intensity = 1;
     const light1 = new THREE.DirectionalLight(color, intensity);
-    const light2 = new THREE.DirectionalLight(color, intensity);
+    //const light2 = new THREE.DirectionalLight(color, intensity);
     light1.position.set(0, 10, 2);
-    light2.position.set(-5,10,-2);
+    //light2.position.set(-5,10,-2);
     scene.add(light1);
-    scene.add(light1.target);
-    scene.add(light2.target);
+    //scene.add(light1.target);
+    //scene.add(light2.target);
   }
 
   function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
@@ -88,14 +87,16 @@ function main() {
 
 
   let cerebro;
+  let domo;
   {
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('resources/Brain_002B.gltf', (gltf) => {
+    gltfLoader.load('resources/Brain_003.gltf', (gltf) => {
       const root = gltf.scene;
       scene.add(root);
-      //console.log(dumpObject(root).join('\n'));
-      cerebro = root.getObjectByName('Empty')
-
+      console.log(dumpObject(root).join('\n'));
+      domo = root.getObjectByName("BrainDomo");
+      cerebro = root.getObjectByName('Brain');
+      domo.visible = false;
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebro);
@@ -104,7 +105,7 @@ function main() {
       const boxCenter = box.getCenter(new THREE.Vector3());
 
       // set the camera to frame the box
-      frameArea(boxSize * 0.7, boxSize, boxCenter, camera);
+      frameArea(boxSize * 0.025, boxSize, boxCenter, camera);
 
       // update the Trackball controls to handle the new size
       //controls.maxDistance = boxSize;
@@ -140,8 +141,7 @@ function main() {
         cerebro.rotation.y = time/8;
     }
 
-    renderer.alpha = true;
-    renderer.antialias = true;
+
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);
