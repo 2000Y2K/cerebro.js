@@ -7,7 +7,7 @@ function main() {
   const renderer = new THREE.WebGLRenderer({canvas});
   renderer.alpha = true;
   const fov = 45;
-  const aspect = 1;  // the canvas default
+  const aspect = 2;  // the canvas default
   const near = 0.1;
   const far = 100;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
@@ -19,7 +19,7 @@ function main() {
   window.addEventListener('click', (event) => {
     seMovio = true;
   });
-  window.addEventListener('touch-start', (event) => {
+  window.addEventListener('touch-move', (event) => {
     seMovio = true;
   });
 
