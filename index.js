@@ -42,8 +42,8 @@ function main() {
     //const light2 = new THREE.DirectionalLight(color, intensity);
     light1.position.set(0, 10, 2);
     //light2.position.set(-5,10,-2);
-    scene.add(light1);
-    scene.add(light1.target);
+    //scene.add(light1);
+    //scene.add(light1.target);
     //scene.add(light2.target);
   }
 
