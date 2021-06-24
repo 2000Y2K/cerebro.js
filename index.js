@@ -18,33 +18,12 @@ function main() {
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('grey');
-
-  {
-    const planeSize = 40;
-
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.NearestFilter;
-    const repeats = planeSize / 2;
-    texture.repeat.set(repeats, repeats);
-
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
+  scene.background = new THREE.Color('light grey');
 
   {
     const skyColor = 0x000000;  // light blue
     const groundColor = 0x000000;  // brownish orange
-    const intensity = 1.5;
+    const intensity = 15;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
   }
@@ -57,7 +36,6 @@ function main() {
     light1.position.set(0, 10, 2);
     light2.position.set(-5,10,-2);
     scene.add(light1);
-    scene.add(light2);
     scene.add(light1.target);
     scene.add(light2.target);
   }
@@ -104,11 +82,11 @@ function main() {
   let cerebro;
   {
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('resources/Brain_001.gltf', (gltf) => {
+    gltfLoader.load('resources/Brain_002.gltf', (gltf) => {
       const root = gltf.scene;
       scene.add(root);
-      //console.log(dumpObject(root).join('\n'));
-      cerebro = root.getObjectByName('Brain002')
+      console.log(dumpObject(root).join('\n'));
+      cerebro = root.getObjectByName('Empty')
 
       // compute the box that contains all the stuff
       // from root and below
@@ -148,7 +126,7 @@ function main() {
     }
 
     if(cerebro){
-        cerebro.rotation.z = time/4;
+        cerebro.rotation.y = time/8;
     }
 
     renderer.render(scene, camera);
