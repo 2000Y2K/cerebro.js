@@ -99,6 +99,7 @@ function main() {
       cerebro = root.getObjectByName('Brain');
       domo.visible = false;
       wires.material.transparent = true;
+      wires.material.opacity = 0.5
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebro);
