@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r127/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
+import {GUI} from './dat.gui.module.js';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -18,34 +19,91 @@ function main() {
   window.addEventListener('click', (event) => {
     seMovio = true;
   });
-  window.addEventListener('touch-move', (event) => {
+  window.addEventListener('touchstart', (event) => {
     seMovio = true;
   });
+
+  class ColorGUIHelper {
+    constructor(object, prop) {
+      this.object = object;
+      this.prop = prop;
+    }
+    get value() {
+      return `#${this.object[this.prop].getHexString()}`;
+    }
+    set value(hexString) {
+      this.object[this.prop].set(hexString);
+    }
+  }
+
 
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#00485B');
+  scene.background = new THREE.Color('#00485B'); // 00485B
 
   {
-    const skyColor = 0xFFFFFF;  // light blue
-    const groundColor = 0x1002000;  // brownish orange
+    const skyColor = 0xffffff;  // light blue
+    const groundColor = 0xffffff;  // brownish orange
     const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    const light = new THREE.HemisphereLight(groundColor,skyColor, intensity);
     scene.add(light);
   }
 
-  {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light1 = new THREE.DirectionalLight(color, intensity);
-    //const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(0, 10, 2);
-    //light2.position.set(-5,10,-2);
-    //scene.add(light1);
-    //scene.add(light1.target);
-    //scene.add(light2.target);
+  function makeXYZGUI(gui, vector3, name, onChangeFn) {
+    const folder = gui.addFolder(name);
+    folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+    folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
+    folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+    folder.open();
   }
+
+
+
+  {
+    const color = 0xffffff;
+    const intensity = 0.7;
+    const light2 = new THREE.PointLight(color, intensity);
+    const light3 = new THREE.PointLight(color, intensity);
+    const light4 = new THREE.PointLight(color, intensity);
+    const light1 = new THREE.DirectionalLight(color, 0.5);
+    const light5 = new THREE.DirectionalLight(color, 0.5);
+    light1.position.set(1.6,9,0);
+    light2.position.set(1,1,10);
+    light3.position.set(-3.7,1,0);
+    light4.position.set(3.7,1,0);
+    light5.position.set(3.7,1,0);
+    scene.add(light1);
+    scene.add(light2);
+    scene.add(light3);
+    scene.add(light4);
+   // scene.add(light5);
+   scene.add(light1.target);
+   scene.add(light5.target);
+
+
+
+  const gui = new GUI();
+  gui.addColor(new ColorGUIHelper(light1, 'color'), 'value').name('color');
+
+  const helper = new THREE.DirectionalLightHelper(light1);
+  scene.add(helper);
+  gui.add(light1, 'intensity', 0, 2, 0.01);
+  function updateLight() {
+    light1.target.updateMatrixWorld();
+    helper.update();
+  }
+  updateLight();
+  makeXYZGUI(gui, light1.position, 'position', updateLight);
+  makeXYZGUI(gui, light1.target.position, 'target', updateLight);
+
+   
+
+
+
+  // scene.add(light2.target); 
+  }
+
 
   function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
     const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
@@ -91,19 +149,31 @@ function main() {
   let cerebro;
   {
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('resources/Brain_003.gltf', (gltf) => {
+    gltfLoader.load('resources//Brain_004/Brain_003.gltf', (gltf) => {
       const root = gltf.scene;
       scene.add(root);
-      console.log(dumpObject(root).join('\n'));
+      console.log(dumpObject(root).join('\n'),root);
       domo = root.getObjectByName("BrainDomo");
-      wires = root.getObjectByName("BrainWire");
+      wires = root.getObjectByName("BrainBorder");
       cerebro = root.getObjectByName("BrainSolid")
       cerebros = root.getObjectByName('Brain');
       domo.visible = false;
-      wires.material.transparent = false;
-      wires.material.opacity =0;
+      domo.transparent = true;
+    
+
+
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x1e4a27,    // red (can also use a CSS color string here)
+        //flatShading: true,
+      });
+
+      //wires.material.transparent = false;
+      //wires.material.set.colorRGB(0.4,0.3,0);
+      cerebro.material = material;
+      wires.visible = false;
+      wires.transparent = true;
       cerebro.material.transparent = true;
-      cerebro.material.opacity = 0;
+      //cerebro.material.dithering = true;
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebros);
