@@ -218,9 +218,11 @@ function main() {
       const material = new THREE.MeshPhongMaterial({
         color: 0x84BD00,    // red (can also use a CSS color string here)
         flatShading: true,
+        transparent: true,
+        opacity:  0.95
       });
 
-      //wires.material.transparent = false;
+      wires.material.transparent = false;
       //wires.material.set.colorRGB(0.4,0.3,0);
       cerebro.material = material;
       wires.visible = false;
