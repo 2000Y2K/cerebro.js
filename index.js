@@ -1,15 +1,10 @@
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r127/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
-import {RectAreaLightUniformsLib} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/lights/RectAreaLightUniformsLib.js';
-import {RectAreaLightHelper} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/helpers/RectAreaLightHelper.js';
-import {GUI} from './dat.gui.module.js';
 
 function main() {
   const canvas = document.querySelector('#c');
-  
   const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha: false});
-  RectAreaLightUniformsLib.init();
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.1;
@@ -23,60 +18,22 @@ function main() {
   window.addEventListener('click', (event) => {
     seMovio = true;
   });
-  window.addEventListener('touchstart', (event) => {
+  window.addEventListener('touch-move', (event) => {
     seMovio = true;
   });
-  class DegRadHelper {
-    constructor(obj, prop) {
-      this.obj = obj;
-      this.prop = prop;
-    }
-    get value() {
-      return THREE.MathUtils.radToDeg(this.obj[this.prop]);
-    }
-    set value(v) {
-      this.obj[this.prop] = THREE.MathUtils.degToRad(v);
-    }
-  }
-
-
-
-  class ColorGUIHelper {
-    constructor(object, prop) {
-      this.object = object;
-      this.prop = prop;
-    }
-    get value() {
-      return `#${this.object[this.prop].getHexString()}`;
-    }
-    set value(hexString) {
-      this.object[this.prop].set(hexString);
-    }
-  }
-
 
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#00485B'); // 00485B
+  scene.background = new THREE.Color('#00485B');
 
   {
-    const skyColor = 0xffffff;  // light blue
-    const groundColor = 0xffffff;  // brownish orange
-    const intensity = 0.3;
-    const light = new THREE.HemisphereLight(groundColor,skyColor, intensity);
+    const skyColor = 0xFFFFFF;  // light blue
+    const groundColor = 0x1002000;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.AmbientLight(skyColor, groundColor, intensity);
     scene.add(light);
   }
-
-  function makeXYZGUI(gui, vector3, name, onChangeFn) {
-    const folder = gui.addFolder(name);
-    folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
-    folder.add(vector3, 'y', -10, 10).onChange(onChangeFn);
-    folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
-    folder.open();
-  }
-
-
 
   {
     const color = 0xffffff;
@@ -85,78 +42,24 @@ function main() {
     const light3 = new THREE.PointLight(color, intensity);
     const light6 = new THREE.PointLight(color, intensity);
     const light4 = new THREE.PointLight(color, intensity);
-    const light1 = new THREE.DirectionalLight(color, 0.5);
-    const light5 = new THREE.DirectionalLight(color, 0.5);
+    const light1 = new THREE.DirectionalLight(color, 0.1);
+    const light5 = new THREE.DirectionalLight(color, 0.1);
     light1.position.set(1.6,9,0);
     light2.position.set(1,1,10);
     
     light3.position.set(-3.7,1,0); // -1.1 0.2 -5
     light4.position.set(3.7,1,0);
-   //light5.position.set(3.7,1,0);
+   light5.position.set(3.7,1,0);
    light6.position.set(-1.1,0.2,-5);
     scene.add(light1);
-    scene.add(light2);
-    scene.add(light3);
-    scene.add(light4);
-    scene.add(light6);
+    //scene.add(light2);
+    //scene.add(light3);
+    //scene.add(light4);
+    //scene.add(light6);
    scene.add(light5);
    scene.add(light1.target);
-  //scene.add(light5.target);
+  scene.add(light5.target);
 }
-
-  // {
-  //   const color = 0xFFFFFF;
-  //   const intensity = 5;
-  //   const width = 12;
-  //   const height = 12;
-  //   const light = new THREE.RectAreaLight(color, intensity, width, height);
-  //   light.position.set(0, 10, 0);
-  //   light.rotation.x = THREE.MathUtils.degToRad(-90);
-  //   scene.add(light);
-
-  //   const helper = new RectAreaLightHelper(light);
-  //   light.add(helper);
-
-  //   const gui = new GUI();
-  //   gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
-  //   gui.add(light, 'intensity', 0, 10, 0.01);
-  //   gui.add(light, 'width', 0, 20);
-  //   gui.add(light, 'height', 0, 20);
-  //   gui.add(new DegRadHelper(light.rotation, 'x'), 'value', -180, 180).name('x rotation');
-  //   gui.add(new DegRadHelper(light.rotation, 'y'), 'value', -180, 180).name('y rotation');
-  //   gui.add(new DegRadHelper(light.rotation, 'z'), 'value', -180, 180).name('z rotation');
-
-  //   makeXYZGUI(gui, light.position, 'position');
-  // }
-
-
-
-
-
-
-
-// 
-//   const gui = new GUI();
-//   gui.addColor(new ColorGUIHelper(light1, 'color'), 'value').name('color');
-
-//   const helper = new THREE.DirectionalLightHelper(light1);
-//   scene.add(helper);
-//   gui.add(light1, 'intensity', 0, 2, 0.01);
-//   function updateLight() {
-//     light1.target.updateMatrixWorld();
-//     helper.update();
-//   }
-//   updateLight();
-//   makeXYZGUI(gui, light1.position, 'position', updateLight);
-//   makeXYZGUI(gui, light1.target.position, 'target', updateLight);
-
-//  
-
-
-
-  // scene.add(light2.target); 
-  
-
 
   function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
     const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
@@ -202,33 +105,20 @@ function main() {
   let cerebro;
   {
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('resources//Brain_004/Brain_003.gltf', (gltf) => {
+    gltfLoader.load('resources/Brain_003.gltf', (gltf) => {
       const root = gltf.scene;
       scene.add(root);
-      console.log(dumpObject(root).join('\n'),root);
+      console.log(dumpObject(root).join('\n'));
       domo = root.getObjectByName("BrainDomo");
-      wires = root.getObjectByName("BrainBorder");
+      wires = root.getObjectByName("BrainWire");
       cerebro = root.getObjectByName("BrainSolid")
       cerebros = root.getObjectByName('Brain');
       domo.visible = false;
-      domo.transparent = true;
-    
-
-    
-      const material = new THREE.MeshPhongMaterial({
-        color: 0x84BD00,    // red (can also use a CSS color string here)
-        flatShading: true,
-        transparent: true,
-        opacity:  0.95
-      });
-
-      wires.material.transparent = false;
-      //wires.material.set.colorRGB(0.4,0.3,0);
-      cerebro.material = material;
-      wires.visible = false;
-      wires.transparent = true;
+      wires.material.transparent = true;
+      wires.material.opacity =0.6;
       cerebro.material.transparent = true;
-      //cerebro.material.dithering = true;
+      cerebro.material.opacity = 1;
+      cerebro.material.shininess = 0;
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebros);
