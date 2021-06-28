@@ -716,8 +716,8 @@ function main() {
     const light3 = new THREE.PointLight(color, intensity);
     const light6 = new THREE.PointLight(color, intensity);
     const light4 = new THREE.PointLight(color, intensity);
-    const light1 = new THREE.DirectionalLight(color, 0.3);
-    const light5 = new THREE.DirectionalLight(color, 0.2);
+    const light1 = new THREE.DirectionalLight(color, 0.5);
+    const light5 = new THREE.DirectionalLight(color, 0.5);
     light1.position.set(1.6,9,0);
     light2.position.set(1,1,10);
     
@@ -827,7 +827,6 @@ function main() {
     return lines;
   }
 
-
   let wires;
   let cerebros;
   let domo;
@@ -844,18 +843,14 @@ function main() {
       cerebros = root.getObjectByName('Brain');
       domo.visible = false;
       domo.transparent = true;
-	  root.getObjectByName("IPoint_A").visible = false;
-	  root.getObjectByName("IPoint_B").visible = false;
-	  root.getObjectByName("IPoint_C").visible = false;
-	  root.getObjectByName("IPoint_D").visible = false;
-	  root.getObjectByName("IPoint_E").visible = false;
+    
 
-
+    
       const material = new THREE.MeshPhongMaterial({
-        color: 0xffffff,    // red (can also use a CSS color string here)
+        color: 0x84BD00,    // red (can also use a CSS color string here)
         flatShading: true,
-        transparent: false,
-        opacity:  1
+        transparent: true,
+        opacity:  0.95
       });
 
       wires.material.transparent = false;
