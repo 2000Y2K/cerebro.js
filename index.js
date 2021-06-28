@@ -40,7 +40,7 @@ function main() {
     const intensity = 1;
     const light1 = new THREE.DirectionalLight(color, intensity);
     //const light2 = new THREE.DirectionalLight(color, intensity);
-    light1.position.set(0, 10, 2);
+    //light1.position.set(0, 10, 2);
     //light2.position.set(-5,10,-2);
     //scene.add(light1);
     //scene.add(light1.target);
@@ -103,7 +103,7 @@ function main() {
       wires.material.transparent = false;
       wires.material.opacity =0;
       cerebro.material.transparent = true;
-      cerebro.material.opacity = 0;
+      cerebro.material.opacity = 1;
       // compute the box that contains all the stuff
       // from root and below
       const box = new THREE.Box3().setFromObject(cerebros);
