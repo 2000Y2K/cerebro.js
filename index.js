@@ -8,15 +8,14 @@ import {GUI} from './dat.gui.module.js';
 function main() {
   const canvas = document.querySelector('#c');
   
-  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha: true});
+  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : true});
   //RectAreaLightUniformsLib.init();
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.01;
-  const far = 100;
+  const far = 10;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.set(0, 10, 20);
-
+  camera.position.set(10, 10, 20);
   let seMovio = false;
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, -5, 0);
@@ -27,20 +26,6 @@ function main() {
   window.addEventListener('touchstart', (event) => {
     seMovio = true;
   });
-//   class DegRadHelper {
-//     constructor(obj, prop) {
-//       this.obj = obj;
-//       this.prop = prop;
-//     }
-//     get value() {
-//       return THREE.MathUtils.radToDeg(this.obj[this.prop]);
-//     }
-//     set value(v) {
-//       this.obj[this.prop] = THREE.MathUtils.degToRad(v);
-//     }
-//   }
-
-
 
   class ColorGUIHelper {
     constructor(object, prop) {
@@ -95,9 +80,9 @@ function main() {
     light4.position.set(3.7,1,0);
    light5.position.set(-9.820,9,0);
    light6.position.set(-1.1,0.2,-5);
-  //   scene.add(light1);
-  //   scene.add(light2);
-  //   scene.add(light3);
+    scene.add(light1);
+    scene.add(light2);
+    scene.add(light3);
   //   scene.add(light4);
   //   scene.add(light6);
   //  scene.add(light5);
@@ -197,19 +182,22 @@ function main() {
     return lines;
   }
 
+  function hacerEsfera(mesh,x,y,z)
+  {
+    const esfera = mesh.clone();
+    esfera.position.set(x,y,z);
+    esfera.renderOrder = 1;
+    esfera.material.depthWrite = true;
+    cerebros.add(esfera);
+    return esfera;
+  }
+
   let wires;
   let cerebros;
-  let domo;
   let cerebro;
-  let puntoA;
-  let puntoB;
-  let puntoC;
-  let puntoD;
-  let puntoE;
-  let puntoF;
-  let puntoG;
+  const esferas = [];
+  const gltfLoader = new GLTFLoader();
   {
-    const gltfLoader = new GLTFLoader();
     gltfLoader.load('resources/Brain.gltf', (gltf) => {
       const root = gltf.scene;
 
@@ -218,51 +206,27 @@ function main() {
       cerebro = root.getObjectByName("BrainSolid")
       cerebros = root.getObjectByName('Brain');
       scene.add(cerebros);
-    
+      //console.log(scene);
+
+
 
       gltfLoader.load('resources/IPoint A.gltf', (gltf) => {
         const root = gltf.scene;
-        puntoA = root.getObjectByName("IPoint_A");
-        puntoB = puntoA.clone();
-        puntoC = puntoA.clone();
-        puntoD = puntoA.clone();
-        puntoE = puntoA.clone();
-        puntoF = puntoA.clone();
-        console.log(dumpObject(root).join('\n'),root);
-        puntoA.position.set(0.250,4.840,-0.250);
-        puntoB.position.set(-0.950,6.820,-0.130);
-        puntoC.position.set(-1.440,3.210,-2.780);
-        puntoD.position.set(0.990,5.370,-2.260);
-        puntoE.position.set(-3.770,5.370,-2.390);
-        puntoF.position.set(-1.550,5.910,-5.160);
-        puntoA.renderOrder = 1;
-        puntoB.renderOrder = 1;
-        puntoC.renderOrder = 1;
-        puntoD.renderOrder = 1;
-        puntoE.renderOrder = 1;
-        puntoF.renderOrder = 1;
-        cerebros.add(puntoA);
-        cerebros.add(puntoB);
-        cerebros.add(puntoC);
-        cerebros.add(puntoD);
-        cerebros.add(puntoE);
-        cerebros.add(puntoF);
+        const esfera = root.getObjectByName("IPoint_A");
+        esferas.push(hacerEsfera(esfera,0.250,4.840,-0.250));
+        esferas.push(hacerEsfera(esfera,-0.950,6.820,-0.130));
+        esferas.push(hacerEsfera(esfera,-1.440,3.210,-2.780));
+        esferas.push(hacerEsfera(esfera,0.990,5.370,-2.260));
+        esferas.push(hacerEsfera(esfera,-3.770,5.370,-2.390))
+        esferas.push(hacerEsfera(esfera,-1.550,5.910,-5.160));
     });
-
-
-      // const material = new THREE.MeshPhongMaterial({
-      //   color: 0x84BD00,    // red (can also use a CSS color string here)
-      //   flatShading: true,
-      //   transparent: true,
-      //   opacity: 1
-      // });
-
-      wires.material.transparent = false;
+    
+      //cerebro.material.transparent = false;
       //cerebro.material = material;
       //wires.visible = false;
-      wires.transparent = true;
-      cerebro.material.transparent = true;
-      cerebro.material.opacity = 0.5;
+      wires.transparent = false;
+      cerebro.material.depthWrite = true;
+      cerebro.material.opacity = 0.7;
       //cerebro.material.dithering = true;
       // compute the box that contains all the stuff
       // from root and below
@@ -283,6 +247,7 @@ function main() {
 
   }
 
+
   
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -296,6 +261,13 @@ function main() {
 
     return needResize;
   }
+
+  const tempV = new THREE.Vector3();
+  const raycaster = new THREE.Raycaster();
+  const posicionCamara = new THREE.Vector3();
+  const camaraAPunto = new THREE.Vector3();
+  const matrizNormalizada = new THREE.Matrix3();
+  //const anguloMax;
 
   function render(time) {
     time *= 0.001;
@@ -312,12 +284,58 @@ function main() {
 
     if(cerebros && !seMovio){
       cerebros.rotation.y = time/8;
-      //puntoA.rotation.y = time/8;
+      //controls.autoRotate = false;
+    }
+
+    matrizNormalizada.getNormalMatrix(camera.matrixWorldInverse);
+    camera.getWorldPosition(posicionCamara);
+
+    for (const esfera of esferas){
+
+      const posicion = new THREE.Vector3();
+      esfera.getWorldPosition(posicion);
+      //console.log(posicion);
+      tempV.copy(posicion);
+      tempV.applyMatrix3(matrizNormalizada).normalize();
+
+    camaraAPunto.copy(posicion);
+     camaraAPunto.applyMatrix4(camera.matrixWorldInverse).normalize();
+
+     const productoPunto = tempV.dot(camaraAPunto);
+     const distancia = camaraAPunto.manhattanLength();
+
+
+
+     esfera.updateWorldMatrix(true,false);
+     esfera.getWorldPosition(tempV);
+
+     // tempV.project(camera);
+
+      // raycaster.setFromCamera(tempV,camera);
+      // const objetosIntersecados = raycaster.intersectObjects(scene);
+      // //setTimeout(() => {console.log(objetosIntersecados.length,objetosIntersecados);}, 5000)
+      // //const mostrar = objetosIntersecados.length && esfera === objetosIntersecados[0].object;
+
+
+      // if( productoPunto < -0.2 || productoPunto < 0.4  )//|| distancia > 1.6)
+      // {
+      //   //console.log("hola!");
+      //   esfera.visible = true;
+      //   setTimeout(() => {console.log("distancia",distancia,"producto punto",productoPunto)}, 5000);
+      // }
+      // else {
+
+      //   //console.log("malo");
+      //   //console.log("este entro",productoPunto)
+
+      //   esfera.visible = false;
+        
+      //   //esfera.geometry.scale = 1.5
+      // }
     }
 
 
     renderer.render(scene, camera);
-
     requestAnimationFrame(render);
   }
 
