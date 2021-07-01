@@ -1,0 +1,268 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.5.17",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                2
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "BrainSolid",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ],
+            "translation" : [
+                0,
+                5,
+                0
+            ]
+        },
+        {
+            "mesh" : 1,
+            "name" : "BrainWire",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                0,
+                5,
+                0
+            ]
+        },
+        {
+            "children" : [
+                0,
+                1
+            ],
+            "name" : "Brain",
+            "translation" : [
+                0,
+                -5,
+                0
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "alphaMode" : "BLEND",
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                1,
+                1,
+                1
+            ],
+            "emissiveTexture" : {
+                "index" : 0
+            },
+            "name" : "BrainSolid.002",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "roughnessFactor" : 0.2500000298023224
+            }
+        },
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0.8837013840675354,
+                1,
+                0.47786855697631836
+            ],
+            "name" : "BrainWire",
+            "pbrMetallicRoughness" : {
+                "roughnessFactor" : 0.5474786162376404
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "BrainSolid.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        },
+        {
+            "name" : "BrainWire",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 4,
+                        "NORMAL" : 5,
+                        "TEXCOORD_0" : 6
+                    },
+                    "indices" : 7,
+                    "material" : 1
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "BrainEmission",
+            "uri" : "BrainEmission.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "BrainDiffuse",
+            "uri" : "BrainDiffuse.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 5556,
+            "max" : [
+                2.359876871109009,
+                2.997129201889038,
+                2.757169723510742
+            ],
+            "min" : [
+                -2.3254170417785645,
+                -2.944369316101074,
+                -2.0170540809631348
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 5556,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 5556,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 5562,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 22865,
+            "max" : [
+                2.3715763092041016,
+                3.0091497898101807,
+                2.7671988010406494
+            ],
+            "min" : [
+                -2.3368947505950928,
+                -2.9561660289764404,
+                -2.0281522274017334
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 22865,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 22865,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5123,
+            "count" : 66744,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 66672,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 66672,
+            "byteOffset" : 66672
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 44448,
+            "byteOffset" : 133344
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 11124,
+            "byteOffset" : 177792
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 274380,
+            "byteOffset" : 188916
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 274380,
+            "byteOffset" : 463296
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 182920,
+            "byteOffset" : 737676
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 133488,
+            "byteOffset" : 920596
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1054084,
+            "uri" : "Brain.bin"
+        }
+    ]
+}
