@@ -100,9 +100,9 @@ function main() {
   controls.autoRotateSpeed = 1;
   controls.enableDamping = true;
   controls.enableZoom = true;
-  //controls.minDistance = 8;
+  controls.minDistance = 8;
   controls.maxDistance = 10;
-  controls.enablePan = true;
+  controls.enablePan = false;
   controls.update();
   /////
 
@@ -346,7 +346,7 @@ function main() {
         controls.minDistance = 5.5 + canvas.clientWidth*0.015;
       }
       else {
-        //controls.minDistance = 8;
+        controls.minDistance = 8;
       }
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
