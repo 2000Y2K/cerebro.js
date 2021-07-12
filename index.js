@@ -15,8 +15,8 @@ function main() {
   let cerebros;
   let cerebro;
   const esferas = [];
-  const highlights = [];
-  const nombreEsferas =["a","b","c","d","e","f"];
+  const highlights = new Array(7);
+  const nombres =["A","B","C","D","E","F"];
   const tempV = new THREE.Vector3();
   const raycaster = new THREE.Raycaster();
   const posicionCamara = new THREE.Vector3();
@@ -28,18 +28,21 @@ function main() {
 
 
 
-  function cargarHighlight(nombre)
+  function cargarHighlight(nombre,index)
   {
-    gltfLoader.load('resources/Brain '+nombre+'.gltf' , (gltf) => {
+    gltfLoader.load('resources/Brain_light.gltf' , (gltf) => {
       const root = gltf.scene;
+     // console.log(dumpObject(root));
       const highlight = root.getObjectByName("BrainSolid_Light_"+nombre);
-      highlight.material.emissiveIntensity = 3;
+      highlight.material.emissiveIntensity = 4;
+      console.log(highlight.geometry)
+      highlight.material.opacity = 0.5;
       highlight.position.set(0,0,0);
       highlight.rotation.set(0,0,0);
       highlight.name = "highlight_"+nombre;
+      highlights[index] = highlight;
       cerebro.add(highlight);
       highlight.visible = false;
-      highlights.push(highlight);
     });
   }
 
@@ -48,12 +51,12 @@ function main() {
           gltfLoader.load('resources/IPoint A.gltf', (gltf) => {
         const root = gltf.scene;
         const esfera = root.getObjectByName("IPoint_A");
-        esferas.push(hacerEsfera(esfera,0.250,4.840,-0.250,"a"));
-        esferas.push(hacerEsfera(esfera,-0.950,6.820,-0.130,"b"));
-        esferas.push(hacerEsfera(esfera,-1.440,3.210,-2.780,"c"));
-        esferas.push(hacerEsfera(esfera,0.990,5.370,-2.260,"d"));
-        esferas.push(hacerEsfera(esfera,-3.770,5.370,-2.390,"e"))
-        esferas.push(hacerEsfera(esfera,-1.550,5.910,-5.160,"f"));
+        esferas.push(hacerEsfera(esfera,0.250,4.840,-0.250,"A"));
+        esferas.push(hacerEsfera(esfera,-0.950,6.820,-0.130,"B"));
+        esferas.push(hacerEsfera(esfera,-1.440,3.210,-2.780,"C"));
+        esferas.push(hacerEsfera(esfera,0.990,5.370,-2.260,"D"));
+        esferas.push(hacerEsfera(esfera,-3.770,5.370,-2.390,"E"))
+        esferas.push(hacerEsfera(esfera,-1.550,5.910,-5.160,"F"));
     });
   }
 
@@ -239,9 +242,6 @@ function main() {
     esfera.renderOrder = 1;
     esfera.material.depthWrite = true;
     esfera.name = nombre
-
-    //console.log("posicion esfera",x,y,z);
-
     scene.add(esfera);
 
     return esfera;
@@ -260,11 +260,12 @@ function main() {
 
       cargarEsferas();
       cargarEtiquetas();
-      cargarHighlight("A");
-      cargarHighlight("B");
-      cargarHighlight("C");
-      // cargarHighlight("D");
-      cargarHighlight("E");
+      cargarHighlight("A",0);
+      cargarHighlight("B",1);
+      cargarHighlight("C",2);
+      cargarHighlight("D",3);
+      cargarHighlight("E",4);
+      cargarHighlight("F",5);
     
 
 
@@ -321,16 +322,35 @@ function main() {
     {
       for (let intersecado of intersecados)
       {
-        if(nombreEsferas.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
+        if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
         {
-           // console.log("si",intersecado.object.name);
-            //intersecado.object.visible = false; 
-            //setTimeout(() => intersecado.object.visible = true, 500);
             switch(intersecado.object.name)
             {
-              case 'a':
+              case "A":
+                highlights[1].visible = true;
+                setTimeout(() => highlights[1].visible = false,5000);
+                break;
+              case "B":
                 highlights[0].visible = true;
                 setTimeout(() => highlights[0].visible = false,5000);
+                break;
+              case "C":
+                highlights[3].visible = true;
+                setTimeout(() => highlights[3].visible = false,5000);
+                break;
+              case "D":
+                highlights[2].visible = true;
+                setTimeout(() => highlights[2].visible = false,5000);
+                break;
+              case "E":
+                highlights[5].visible = true;
+                setTimeout(() => highlights[5].visible = false,5000);
+                break;
+              case "F":
+                highlights[4].visible = true;
+                setTimeout(() => highlights[4].visible = false,5000);
+                break;
+                                  
             }
         }
       }
