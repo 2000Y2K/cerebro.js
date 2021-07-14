@@ -17,37 +17,30 @@ function main() {
   
   } );
 
-
+const conexiones = [];
 
 var OBJ_MODELS = {};
 const OBJloader = new OBJLoader();
 OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
   var materialNeurona = new THREE.PointsMaterial( { 
     map: TEXTURES.electric,
-    size: 0.08,
+    size: 0.15,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     depthTest: false,
     transparent: true
   });
 	OBJ_MODELS.brain = model.children[ 0 ];
-  OBJ_MODELS.brain.scale.set(0.027,0.027,0.027);
-  OBJ_MODELS.brain.position.set(0,5.160,-0.32)
-  OBJ_MODELS.brain.renderOrder = 2;
-  //OBJ_MODELS.brain.position.z = -0.32;
+  OBJ_MODELS.brain.scale.set(0.027,0.027,0.0328);
+  OBJ_MODELS.brain.position.set(0,5.160,-0.4)
   OBJ_MODELS.brain.material = materialNeurona
+  OBJ_MODELS.brain.renderOrder = 2;
   console.log(OBJ_MODELS.brain);
   scene.add(OBJ_MODELS.brain)
   OBJ_MODELS.brain.geometry.drawRange.count = 0;
   OBJ_MODELS.brain.geometry.drawRange.start = 0;
 } );
 
-
-
-function animarNeuronas(tiempo)
-{
-
-}
 
 /////////////////////////////////
   const canvas = document.querySelector('#c');
@@ -175,7 +168,7 @@ function animarNeuronas(tiempo)
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, -5, 0);
   controls.autoRotate = true;
-  controls.autoRotateSpeed = 1.4;
+  controls.autoRotateSpeed = 1.5;
   controls.enableDamping = true;
   controls.enableZoom = true;
   controls.minDistance = 8;
@@ -364,7 +357,18 @@ function animarNeuronas(tiempo)
 
   }
 
+  function activarNeuronas(count,start)
+  {   
+    // for(let i = 0; i < 500; i++)
+    // { 
+      OBJ_MODELS.brain.geometry.drawRange.count = count;
+      OBJ_MODELS.brain.geometry.drawRange.start =  count - 100 //start;
+      //OBJ_MODELS.brain.material.size = Math.random() / 4  //* OBJ_MODELS.brain.material.size;
+      reloj.start();
+      //etTimeout(() => console.log("hola"),2000)
+    //}
 
+  }
   
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -378,7 +382,7 @@ function animarNeuronas(tiempo)
 
     return needResize;
   } 
-
+  const intervalos = [0.2,0.3,0.6,0.1];
   function render(time) {
     time *= 0.001;
 
@@ -387,116 +391,87 @@ function animarNeuronas(tiempo)
     raycaster.setFromCamera(mouse, camera);
     const intersecados = raycaster.intersectObjects(scene.children);
 
+    highlights.forEach((highlight) => highlight.visible = false);
+    if ( controls.autoRotate === false)
+      {
+        controls.autoRotate = true;
+      }
+
+      if (neuronasActivas && reloj.getElapsedTime() > 0.25)
+      {
+        OBJ_MODELS.brain.geometry.drawRange.count = 0;
+        neuronasActivas = false;
+      }
+
 
     if (intersecados.length)
     {
       for (let intersecado of intersecados)
       {
-        if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object && !neuronasActivas)
+        if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
         {
+            
             switch(intersecado.object.name)
             {
               case "A":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[1].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[1].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
+                controls.autoRotate = false;
                 break;
               case "B":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[0].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[0].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
+                controls.autoRotate = false;
                 break;
               case "C":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[3].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[3].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
+                controls.autoRotate = false;
                 break;
               case "D":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[2].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[2].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
+                controls.autoRotate = false;
                 break;
               case "E":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[5].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[5].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
-                break;
+                controls.autoRotate = false;
+                 break;
               case "F":
                 if(!neuronasActivas)
                 {
+                  var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
-                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                  activarNeuronas(count)
                 }
                 highlights[4].visible = true;
-                //console.log(time);
-                setTimeout(() =>
-                {
-                  highlights[4].visible = false;
-                  neuronasActivas = false;
-                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-                } ,3000);
+                controls.autoRotate = false;
                 break;
                                   
             }
@@ -519,7 +494,6 @@ function animarNeuronas(tiempo)
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
     }
-
 
     controls.update()
     renderer.render(scene, camera);
