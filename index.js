@@ -1,14 +1,56 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.119.1/build/three.module.js';
 import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/loaders/GLTFLoader.js';
-//import {GUI} from './dat.gui.module.js';
+import {GUI} from './dat.gui.module.js';
+import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js';
 
 
 
 
 function main() {
-  const canvas = document.querySelector('#c');
+
+  var TEXTURES = {};
+  var textureLoader = new THREE.TextureLoader( );
+  textureLoader.load( 'resources/sprites/electric.png', function ( tex ) {
   
+    TEXTURES.electric = tex;
+  
+  } );
+
+
+
+var OBJ_MODELS = {};
+const OBJloader = new OBJLoader();
+OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
+  var materialNeurona = new THREE.PointsMaterial( { 
+    map: TEXTURES.electric,
+    size: 0.08,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: false,
+    transparent: true
+  });
+	OBJ_MODELS.brain = model.children[ 0 ];
+  OBJ_MODELS.brain.scale.set(0.027,0.027,0.027);
+  OBJ_MODELS.brain.position.set(0,5.160,-0.32)
+  OBJ_MODELS.brain.renderOrder = 2;
+  //OBJ_MODELS.brain.position.z = -0.32;
+  OBJ_MODELS.brain.material = materialNeurona
+  console.log(OBJ_MODELS.brain);
+  scene.add(OBJ_MODELS.brain)
+  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+} );
+
+
+
+function animarNeuronas(tiempo)
+{
+
+}
+
+/////////////////////////////////
+  const canvas = document.querySelector('#c');
   const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : false});
 
   let wires;
@@ -24,18 +66,51 @@ function main() {
   const matrizNormalizada = new THREE.Matrix3();
   const gltfLoader = new GLTFLoader();
   const mouse = new THREE.Vector2(1,1);
+  const chispas = [];
+  const reloj = new THREE.Clock();
+  var neuronasActivas = false;
+  //const pos=[-2.209542989730835,-0.20527023077011108,-0.3194902241230011,-1.5498987436294556,1.518546462059021,1.1377387046813965]
+
   document.body.appendChild(renderer.domElement);
 
+  function randomEntre(min, max) {
+    return Math.random() * (max - min) + min;
+  }
 
+  function crearNumeros() {
+    var geom = new THREE.Geometry();
+    const cero = new THREE.TextureLoader().load('resources/cero.png');
+    var materialCero = new THREE.PointsMaterial( { 
+          map: cero,
+          size: 0.3,
+          blending: THREE.AdditiveBlending,
+          depthWrite: true,
+          depthTest: true,
+          transparent: true
+        });
+    for( let i = 0; i < 300; i++)        
+    {
+      var particle = new THREE.Vector3(randomEntre(-5,5),randomEntre(2,5),randomEntre(0,5));
+      particle.velocityY = 0.1 + Math.random() / 5;
+      particle.velocityX = (Math.random() - 0.5) / 3;
+      particle.velocityZ = (Math.random() - 0.5) / 3;
+      particle.sizeAttenuation = true;
+      //particle.scale.set(0.1,0.1,0.1)
+      geom.vertices.push(particle);
+      geom.colors.push(new THREE.Color(Math.random() * 0xffffff));
+      var cloud = new THREE.Points(geom, materialCero);
+      cloud.renderOrder = 2;
+    }
+    scene.add(cloud);
+    }
 
   function cargarHighlight(nombre,index)
   {
-    gltfLoader.load('resources/Brain_light.gltf' , (gltf) => {
+    gltfLoader.load('resources/models/Brain_light.gltf' , (gltf) => {
       const root = gltf.scene;
-     // console.log(dumpObject(root));
       const highlight = root.getObjectByName("BrainSolid_Light_"+nombre);
       highlight.material.emissiveIntensity = 4;
-      console.log(highlight.geometry)
+      console.log(highlight,nombre)
       highlight.material.opacity = 0.5;
       highlight.position.set(0,0,0);
       highlight.rotation.set(0,0,0);
@@ -48,7 +123,7 @@ function main() {
 
   function cargarEsferas()
   {
-          gltfLoader.load('resources/IPoint A.gltf', (gltf) => {
+          gltfLoader.load('resources/models/IPoint A.gltf', (gltf) => {
         const root = gltf.scene;
         const esfera = root.getObjectByName("IPoint_A");
         esferas.push(hacerEsfera(esfera,0.250,4.840,-0.250,"A"));
@@ -90,7 +165,7 @@ function main() {
   const fov = 45;
   const aspect = 2;  // the canvas default
   const near = 0.01;
-  const far = 10;
+  const far = 5;
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(10, 10, 20);
   /////
@@ -99,13 +174,15 @@ function main() {
   ///// MOVIMIENTO
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, -5, 0);
-  controls.autoRotate = false;
-  controls.autoRotateSpeed = 1;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 1.4;
   controls.enableDamping = true;
   controls.enableZoom = true;
   controls.minDistance = 8;
   controls.maxDistance = 10;
-  controls.enablePan = false;
+  controls.enablePan = true;
+  controls.minPolarAngle = Math.PI/4;
+  controls.maxPolarAngle = 1.9;
   controls.update();
   /////
 
@@ -113,14 +190,7 @@ function main() {
    
    window.addEventListener("mousemove", setPickPosition);
    window.addEventListener('mouseout', clearPickPosition);
-  window.addEventListener('mouseleave', clearPickPosition);
- // (event) =>
-  // {
-  //   mouse.x = (event.clientX /window.innerWidth) * 2 - 1;
-  //   mouse.y = -(event.clientY/window.innerHeight)  * 2 + 1 ;
-  //  // console.log("x ",mouse.x," y ",mouse.y);
-  // })
-  
+   window.addEventListener('mouseleave', clearPickPosition);  
 
   window.addEventListener('touchstart', (event) => {
     // prevent the window from scrolling
@@ -215,7 +285,7 @@ function main() {
     // pick some near and far values for the frustum that
     // will contain the box.
     camera.near = boxSize / 100;
-    camera.far = boxSize * 100;
+    camera.far = boxSize * 3;
 
     camera.updateProjectionMatrix();
 
@@ -248,7 +318,7 @@ function main() {
   }
 
   {
-    gltfLoader.load('resources/Brain.gltf', (gltf) => {
+    gltfLoader.load('resources/models/Brain.gltf', (gltf) => {
       const root = gltf.scene;
 
       wires = root.getObjectByName("BrainWire");
@@ -266,7 +336,7 @@ function main() {
       cargarHighlight("D",3);
       cargarHighlight("E",4);
       cargarHighlight("F",5);
-    
+      //crearNumeros();
 
 
     //cerebro.material.transparent = false;
@@ -322,33 +392,111 @@ function main() {
     {
       for (let intersecado of intersecados)
       {
-        if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
+        if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object && !neuronasActivas)
         {
             switch(intersecado.object.name)
             {
               case "A":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[1].visible = true;
-                setTimeout(() => highlights[1].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[1].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
               case "B":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[0].visible = true;
-                setTimeout(() => highlights[0].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[0].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
               case "C":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[3].visible = true;
-                setTimeout(() => highlights[3].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[3].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
               case "D":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[2].visible = true;
-                setTimeout(() => highlights[2].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[2].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
               case "E":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[5].visible = true;
-                setTimeout(() => highlights[5].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[5].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
               case "F":
+                if(!neuronasActivas)
+                {
+                  neuronasActivas = true;
+                  OBJ_MODELS.brain.geometry.drawRange.count = Math.random() * 5000;
+                  OBJ_MODELS.brain.geometry.drawRange.start = Math.random() * 3000;
+                }
                 highlights[4].visible = true;
-                setTimeout(() => highlights[4].visible = false,5000);
+                //console.log(time);
+                setTimeout(() =>
+                {
+                  highlights[4].visible = false;
+                  neuronasActivas = false;
+                  OBJ_MODELS.brain.geometry.drawRange.count = 0;
+                  OBJ_MODELS.brain.geometry.drawRange.start = 0;
+                } ,3000);
                 break;
                                   
             }
@@ -356,7 +504,7 @@ function main() {
       }
     }
   
-    /////
+
 
 
     if (resizeRendererToDisplaySize(renderer)) { 
@@ -377,7 +525,6 @@ function main() {
     renderer.render(scene, camera);
     requestAnimationFrame(render);
   }
-
   requestAnimationFrame(render);
 }
 
