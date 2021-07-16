@@ -6,9 +6,30 @@ import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/three
 
 
 
-
 function main() {
 
+  const canvas = document.querySelector('#c');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : false});
+  // const informacion = document.createElement('div');
+  const contenedorInformacion = document.querySelector('#informacion')
+  const contenedorMenues = document.querySelector('#menues')
+  let wires;
+  let cerebros;
+  let cerebro;
+  const esferas = [];
+  const highlights = new Array(7);
+  const nombres =["A","B","C","D","E","F"];
+  const tempV = new THREE.Vector3();
+  const raycaster = new THREE.Raycaster();
+  const posicionCamara = new THREE.Vector3();
+  const camaraAPunto = new THREE.Vector3();
+  const matrizNormalizada = new THREE.Matrix3();
+  const gltfLoader = new GLTFLoader();
+  const mouse = new THREE.Vector2(1,1);
+  var click = false;
+  const reloj = new THREE.Clock();
+  var neuronasActivas = false;
+  const datosEmpresas = [];
   var TEXTURES = {};
   var textureLoader = new THREE.TextureLoader( );
   textureLoader.load( 'resources/sprites/electric.png', function ( tex ) {
@@ -16,8 +37,6 @@ function main() {
     TEXTURES.electric = tex;
   
   } );
-
-const conexiones = [];
 
 var OBJ_MODELS = {};
 const OBJloader = new OBJLoader();
@@ -28,7 +47,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     depthTest: false,
-    transparent: true
+    transparent: true,
   });
 	OBJ_MODELS.brain = model.children[ 0 ];
   OBJ_MODELS.brain.scale.set(0.027,0.027,0.0328);
@@ -43,26 +62,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
 
 
 /////////////////////////////////
-  const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : false});
 
-  let wires;
-  let cerebros;
-  let cerebro;
-  const esferas = [];
-  const highlights = new Array(7);
-  const nombres =["A","B","C","D","E","F"];
-  const tempV = new THREE.Vector3();
-  const raycaster = new THREE.Raycaster();
-  const posicionCamara = new THREE.Vector3();
-  const camaraAPunto = new THREE.Vector3();
-  const matrizNormalizada = new THREE.Matrix3();
-  const gltfLoader = new GLTFLoader();
-  const mouse = new THREE.Vector2(1,1);
-  const chispas = [];
-  const reloj = new THREE.Clock();
-  var neuronasActivas = false;
-  //const pos=[-2.209542989730835,-0.20527023077011108,-0.3194902241230011,-1.5498987436294556,1.518546462059021,1.1377387046813965]
 
   document.body.appendChild(renderer.domElement);
 
@@ -92,7 +92,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
       geom.vertices.push(particle);
       geom.colors.push(new THREE.Color(Math.random() * 0xffffff));
       var cloud = new THREE.Points(geom, materialCero);
-      cloud.renderOrder = 2;
+      cloud.renderOrder = 5;
     }
     scene.add(cloud);
     }
@@ -184,7 +184,8 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
    window.addEventListener("mousemove", setPickPosition);
    window.addEventListener('mouseout', clearPickPosition);
    window.addEventListener('mouseleave', clearPickPosition);  
-
+   window.addEventListener('mousedown', clickeado);
+   window.addEventListener('mouseup', Noclickeado);
   window.addEventListener('touchstart', (event) => {
     // prevent the window from scrolling
     event.preventDefault();
@@ -196,6 +197,14 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
   });
    
   window.addEventListener('touchend', clearPickPosition);
+
+  function clickeado() {
+    click = true;
+  }
+
+  function Noclickeado (){
+    click = false;
+  }
 
 
   function getCanvasRelativePosition(event) {
@@ -357,15 +366,49 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
 
   }
 
-  function activarNeuronas(count,start)
+  function abrirInfo(nombre)
+  {
+    contenedorMenues.style.visibility = `hidden`;
+    contenedorInformacion.style.visibility = `visible`;
+    const info = contenedorInformacion.querySelector("#infoInterna");
+    switch(nombre)
+    {
+      case "allegra":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen  allegra </p>`;
+        break;
+      case "cemdoe":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen cemdoe </p>`;
+        break;
+      case "fundacion":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion  y imagen fundacion diabetes </p>`;
+        break;
+      case "atrio":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen atrio </p>`;
+        break;
+      case "arium":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen arium </p>`;
+        break;        
+      case "affinis":
+        info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen affinis </p>`;
+        break;
+
+        
+    }
+    // contenedorInformacion.width = `30%`;
+    // contenedorInformacion.style.padding = `10%`;
+    //contenedorInformacion.innerHTML = <div> </div>;
+  }
+
+  function activarNeuronas(count,tiempo)
   {   
     // for(let i = 0; i < 500; i++)
     // { 
+      //console.log(OBJ_MODELS.brain)
       OBJ_MODELS.brain.geometry.drawRange.count = count;
-      OBJ_MODELS.brain.geometry.drawRange.start =  count - 100 //start;
-      //OBJ_MODELS.brain.material.size = Math.random() / 4  //* OBJ_MODELS.brain.material.size;
+      OBJ_MODELS.brain.geometry.drawRange.start =  count - 50 //start;
+      //OBJ_MODELS.brain.material.size = Math.random()%tiempo / 7  //* OBJ_MODELS.brain.material.size;
       reloj.start();
-      //etTimeout(() => console.log("hola"),2000)
+
     //}
 
   }
@@ -382,26 +425,34 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
 
     return needResize;
   } 
-  const intervalos = [0.2,0.3,0.6,0.1];
-  function render(time) {
-    time *= 0.001;
 
+  function render(tiempo) {
+    tiempo *= 0.001;
+    
     ///// RAYCASTER
 
     raycaster.setFromCamera(mouse, camera);
     const intersecados = raycaster.intersectObjects(scene.children);
 
     highlights.forEach((highlight) => highlight.visible = false);
-    if ( controls.autoRotate === false)
+
+
+    if (contenedorInformacion.style.cssText === "visibility: visible;")
+    {
+      controls.autoRotate = false;
+    }
+    else if ( controls.autoRotate === false)
       {
         controls.autoRotate = true;
       }
 
-      if (neuronasActivas && reloj.getElapsedTime() > 0.25)
+      if (neuronasActivas && reloj.getElapsedTime() > 0.35)
       {
         OBJ_MODELS.brain.geometry.drawRange.count = 0;
         neuronasActivas = false;
       }
+    //  console.log(contenedorInformacion.style)
+
 
 
     if (intersecados.length)
@@ -418,60 +469,92 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  activarNeuronas(count,tiempo)
                 }
                 highlights[1].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("A")
+                  abrirInfo("atrio");
+                }
                 break;
               case "B":
                 if(!neuronasActivas)
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  activarNeuronas(count,tiempo)
                 }
                 highlights[0].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("B")
+                  abrirInfo("fundacion");
+                }
                 break;
               case "C":
                 if(!neuronasActivas)
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  activarNeuronas(count,tiempo)
                 }
                 highlights[3].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("C")
+                  abrirInfo("arium");
+                }
                 break;
               case "D":
                 if(!neuronasActivas)
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  
+                  activarNeuronas(count,tiempo)
+
                 }
                 highlights[2].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("D")
+                  abrirInfo("cemdoe");
+                }
                 break;
               case "E":
                 if(!neuronasActivas)
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  activarNeuronas(count,tiempo)
                 }
                 highlights[5].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("E")
+                  abrirInfo("allegra");
+                }
                  break;
               case "F":
                 if(!neuronasActivas)
                 {
                   var count = randomEntre(100,500);
                   neuronasActivas = true;
-                  activarNeuronas(count)
+                  activarNeuronas(count,tiempo)
                 }
                 highlights[4].visible = true;
                 controls.autoRotate = false;
+                if(click)
+                {
+                  console.log("F")
+                  abrirInfo("affinis");
+                }
                 break;
                                   
             }
@@ -480,7 +563,11 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
     }
   
 
-
+    if(OBJ_MODELS.brain)
+    {
+      //console.log(1)
+      OBJ_MODELS.brain.material.size = (Math.pow(Math.cos(reloj.getElapsedTime()*3),2)* 0.7) * OBJ_MODELS.brain.material.size + 0.037;
+    }
 
     if (resizeRendererToDisplaySize(renderer)) { 
       const canvas = renderer.domElement;
