@@ -2,20 +2,20 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.119.1/build/three.m
 import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/loaders/GLTFLoader.js';
 import {GUI} from './dat.gui.module.js';
-import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js';
 
 
 
 function main() {
 
   const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : false});
+  const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : true});
   // const informacion = document.createElement('div');
   const contenedorInformacion = document.querySelector('#informacion')
   const contenedorMenues = document.querySelector('#menues')
   let wires;
   let cerebros;
   let cerebro;
+  var movil;
   const esferas = [];
   const highlights = new Array(7);
   const nombres =["A","B","C","D","E","F"];
@@ -30,72 +30,73 @@ function main() {
   const reloj = new THREE.Clock();
   var neuronasActivas = false;
   const datosEmpresas = [];
-  var TEXTURES = {};
+  const lineas = [];
   var textureLoader = new THREE.TextureLoader( );
-  textureLoader.load( 'resources/sprites/electric.png', function ( tex ) {
-  
-    TEXTURES.electric = tex;
-  
-  } );
+  var drawCount = 0;
 
-var OBJ_MODELS = {};
-const OBJloader = new OBJLoader();
-OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
-  var materialNeurona = new THREE.PointsMaterial( { 
-    map: TEXTURES.electric,
-    size: 0.15,
+    
+    var materialNeurona = new THREE.PointsMaterial( { 
+    map: textureLoader.load( 'resources/sprites/electric.png'),
+    color: 0xffffff,
+    size: 0.016,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     depthTest: false,
     transparent: true,
+    opacity: 1
   });
-	OBJ_MODELS.brain = model.children[ 0 ];
-  OBJ_MODELS.brain.scale.set(0.027,0.027,0.0328);
-  OBJ_MODELS.brain.position.set(0,5.160,-0.4)
-  OBJ_MODELS.brain.material = materialNeurona
-  OBJ_MODELS.brain.renderOrder = 2;
-  console.log(OBJ_MODELS.brain);
-  scene.add(OBJ_MODELS.brain)
-  OBJ_MODELS.brain.geometry.drawRange.count = 0;
-  OBJ_MODELS.brain.geometry.drawRange.start = 0;
-} );
 
+function hacerLinea(v1,v2,nombre)
+{
+  var puntosMaximos = 1000;
+  var linea;
+
+    
+  var geometriaLinea = new THREE.BufferGeometry();
+  var posicionesLinea = new Float32Array(puntosMaximos*3)
+  const pos = [v1.x,v1.y,v1.z,
+               v2.x,v2.y,v2.z]
+    
+
+    const li = new THREE.Line3(new THREE.Vector3(pos[0],pos[1],pos[2]),new THREE.Vector3(pos[3],pos[4],pos[5]));
+    const p = [];
+    var posi = new THREE.Vector3();
+    //console.log(li.start,li.end)
+    for(let i = 0;  i < puntosMaximos;i+= 1)
+    {
+      
+      li.at(i/puntosMaximos,posi);
+      //console.log("at",i/puntosMaximos,posi);
+      p.push(posi.x,posi.y,posi.z);
+    }
+    posicionesLinea.set(p)
+    geometriaLinea.setAttribute('position', new THREE.BufferAttribute(posicionesLinea,3));
+    geometriaLinea.setDrawRange(0,drawCount);
+  
+    //var materialLinea = new THREE.LineBasicMaterial({depth:THREE.NeverDepth ,color:0xffffff, linewidth: 1000,side: THREE.DoubleSide});
+    //var materialLinea = new THREE.PointsMaterial()
+    linea = new THREE.Points(geometriaLinea,materialNeurona);
+    linea.renderOrder = 5;
+    //console.log(linea)
+    linea.geometry.attributes.position.needsUpdate = true;
+    linea.name = nombre;
+    linea.visible = false;
+    lineas.push(linea);
+    return linea;
+}
 
 /////////////////////////////////
 
 
+  
+
+
+
+
+
+
+
   document.body.appendChild(renderer.domElement);
-
-  function randomEntre(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  function crearNumeros() {
-    var geom = new THREE.Geometry();
-    const cero = new THREE.TextureLoader().load('resources/cero.png');
-    var materialCero = new THREE.PointsMaterial( { 
-          map: cero,
-          size: 0.3,
-          blending: THREE.AdditiveBlending,
-          depthWrite: true,
-          depthTest: true,
-          transparent: true
-        });
-    for( let i = 0; i < 300; i++)        
-    {
-      var particle = new THREE.Vector3(randomEntre(-5,5),randomEntre(2,5),randomEntre(0,5));
-      particle.velocityY = 0.1 + Math.random() / 5;
-      particle.velocityX = (Math.random() - 0.5) / 3;
-      particle.velocityZ = (Math.random() - 0.5) / 3;
-      particle.sizeAttenuation = true;
-      //particle.scale.set(0.1,0.1,0.1)
-      geom.vertices.push(particle);
-      geom.colors.push(new THREE.Color(Math.random() * 0xffffff));
-      var cloud = new THREE.Points(geom, materialCero);
-      cloud.renderOrder = 5;
-    }
-    scene.add(cloud);
-    }
 
   function cargarHighlight(nombre,index)
   {
@@ -103,7 +104,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
       const root = gltf.scene;
       const highlight = root.getObjectByName("BrainSolid_Light_"+nombre);
       highlight.material.emissiveIntensity = 4;
-      console.log(highlight,nombre)
+      console.log(highlight.geometry.attributes.position,nombre)
       highlight.material.opacity = 0.5;
       highlight.position.set(0,0,0);
       highlight.rotation.set(0,0,0);
@@ -149,7 +150,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
     label.position.x = x;
     label.position.y = y;
     label.position.z = z;
-    console.log(label.position);
+    //console.log(label.position);
     return label;
   }
 
@@ -173,7 +174,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
   controls.enableZoom = true;
   controls.minDistance = 8;
   controls.maxDistance = 10;
-  controls.enablePan = true;
+  controls.enablePan = false;
   controls.minPolarAngle = Math.PI/4;
   controls.maxPolarAngle = 1.9;
   controls.update();
@@ -307,6 +308,7 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
     return lines;
   }
 
+  
   function hacerEsfera(mesh,x,y,z,nombre)
   {
     const esfera = mesh.clone();
@@ -338,12 +340,90 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
       cargarHighlight("D",3);
       cargarHighlight("E",4);
       cargarHighlight("F",5);
-      //crearNumeros();
+
+      //atrio
+      cerebro.add(hacerLinea(new THREE.Vector3(1.5973891019821167,2.0125176906585693,-0.03765719383955002),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.6467902660369873,1.4805809259414673,0.3312768340110779),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.4117016792297363,1.450126051902771,0.7401993870735168),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.2726730108261108,2.066633939743042,0.5528200268745422),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.3935871124267578,1.8805689811706543,0.6695277094841003),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+
+      //fundacion
+      cerebro.add(hacerLinea(new THREE.Vector3(0.46760958433151245,2.3373422622680664,-1.0832387208938599),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.5070222020149231,1.9389396905899048,-1.469927430152893),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.03840962424874306,2.2606191635131836,-1.1879698038101196),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.7905917167663574,2.07202410697937,-1.0436018705368042),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
 
 
-    //cerebro.material.transparent = false;
-      //cerebro.material = material;
-      //wires.visible = false;
+      //cemdoe
+      cerebro.add(hacerLinea(new THREE.Vector3(2.0445218086242676,0.4920673668384552,0.2811475098133087),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.7614332437515259,0.28793832659721375,0.18535791337490082),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.359876871109009,-0.6742686033248901,0.1872536540031433),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.3025527000427246,-0.05049416795372963,0.4632873833179474),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.1804606914520264,0.5601081848144531,0.5822124481201172),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.027777671813965,-0.10820109397172928,-0.01572643406689167),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.167001724243164,-0.5073717832565308,-0.052586425095796585),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+
+      //arium
+        cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
+        THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
+        cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
+        THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
+        cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
+        THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
+        cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
+        THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
+      
+
+        //afinis
+        cerebro.add(hacerLinea(new THREE.Vector3(-0.05097797140479088,-2.4827380180358887,-0.06569018959999084),new 
+         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-0.35139283537864685,-2.6888515949249268,-0.2940196096897125),new 
+         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-0.9512643218040466,-2.451958179473877,-0.315106064081192),new 
+         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-0.7279337644577026,-2.285250663757324,-0.7158091068267822),new 
+         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-0.1506601870059967,-2.3690030574798584,-0.5677984952926636),new 
+         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+
+
+         
+         cerebro.add(hacerLinea(new THREE.Vector3(-1.7776892185211182,0.2768135666847229,0.19461233913898468),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.245647430419922,-0.7893467545509338,0.03888602554798126),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.1439945697784424,0.3859260678291321,0.32796695828437805),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.0276832580566406,-0.1640051305294037,-0.010092661716043949),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.3254170417785645,-0.7307484745979309,0.4136829972267151),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.3007712364196777,-0.13052760064601898,0.4617513418197632),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+         cerebro.add(hacerLinea(new THREE.Vector3(-2.179304599761963,0.5281762480735779,0.6159335970878601),new 
+         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+
+
+
+
+
       wires.transparent = false;
       cerebro.material.depthWrite = true;
       cerebro.material.opacity = 0.7;
@@ -394,24 +474,8 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
 
         
     }
-    // contenedorInformacion.width = `30%`;
-    // contenedorInformacion.style.padding = `10%`;
-    //contenedorInformacion.innerHTML = <div> </div>;
   }
 
-  function activarNeuronas(count,tiempo)
-  {   
-    // for(let i = 0; i < 500; i++)
-    // { 
-      //console.log(OBJ_MODELS.brain)
-      OBJ_MODELS.brain.geometry.drawRange.count = count;
-      OBJ_MODELS.brain.geometry.drawRange.start =  count - 50 //start;
-      //OBJ_MODELS.brain.material.size = Math.random()%tiempo / 7  //* OBJ_MODELS.brain.material.size;
-      reloj.start();
-
-    //}
-
-  }
   
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -428,32 +492,40 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
 
   function render(tiempo) {
     tiempo *= 0.001;
-    
     ///// RAYCASTER
-
+    var delta;
     raycaster.setFromCamera(mouse, camera);
     const intersecados = raycaster.intersectObjects(scene.children);
+    highlights.forEach((highlight) => 
+    {
+      if(highlight.visible === true)
+      {
+         reloj.start()
+        highlight.visible = false
+      }
+    });
 
-    highlights.forEach((highlight) => highlight.visible = false);
-
-
+    // if(materialNeurona && materialNeurona.opacity === 1)
+    // {
+    //   materialNeurona.opacity = 0;
+    // }
     if (contenedorInformacion.style.cssText === "visibility: visible;")
     {
       controls.autoRotate = false;
     }
     else if ( controls.autoRotate === false)
       {
-        controls.autoRotate = true;
+         controls.autoRotate = true;
       }
 
-      if (neuronasActivas && reloj.getElapsedTime() > 0.35)
-      {
-        OBJ_MODELS.brain.geometry.drawRange.count = 0;
-        neuronasActivas = false;
-      }
     //  console.log(contenedorInformacion.style)
 
-
+    lineas.forEach((linea) => {
+      linea.visible = false;
+      drawCount = ( drawCount + 1 ) % 1000;
+      linea.geometry.setDrawRange( drawCount - 300, drawCount );
+      linea.geometry.attributes.position.needsUpdate = true;
+    });
 
     if (intersecados.length)
     {
@@ -461,96 +533,95 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
       {
         if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
         {
-            
             switch(intersecado.object.name)
             {
+
               case "A":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  activarNeuronas(count,tiempo)
-                }
                 highlights[1].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "atrio")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click || (reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("A")
                   abrirInfo("atrio");
                 }
                 break;
               case "B":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  activarNeuronas(count,tiempo)
-                }
                 highlights[0].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "fundacion")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("B")
                   abrirInfo("fundacion");
                 }
                 break;
               case "C":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  activarNeuronas(count,tiempo)
-                }
                 highlights[3].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "arium")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("C")
                   abrirInfo("arium");
                 }
                 break;
               case "D":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  
-                  activarNeuronas(count,tiempo)
-
-                }
                 highlights[2].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "cemdoe")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
+
                   console.log("D")
                   abrirInfo("cemdoe");
                 }
                 break;
               case "E":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  activarNeuronas(count,tiempo)
-                }
                 highlights[5].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "allegra")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click || (reloj.getElapsedTime() > 1  && movil)) 
                 {
                   console.log("E")
                   abrirInfo("allegra");
                 }
                  break;
               case "F":
-                if(!neuronasActivas)
-                {
-                  var count = randomEntre(100,500);
-                  neuronasActivas = true;
-                  activarNeuronas(count,tiempo)
-                }
                 highlights[4].visible = true;
                 controls.autoRotate = false;
-                if(click)
+                lineas.forEach((linea) => {
+                  if (linea.name === "afinis")
+                  {
+                    linea.visible = true
+                  }
+                })
+                if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("F")
                   abrirInfo("affinis");
@@ -561,21 +632,21 @@ OBJloader.load( 'resources/models/brain_vertex_low.obj', function ( model ) {
         }
       }
     }
+
   
 
-    if(OBJ_MODELS.brain)
-    {
-      //console.log(1)
-      OBJ_MODELS.brain.material.size = (Math.pow(Math.cos(reloj.getElapsedTime()*3),2)* 0.7) * OBJ_MODELS.brain.material.size + 0.037;
-    }
+
+
 
     if (resizeRendererToDisplaySize(renderer)) { 
       const canvas = renderer.domElement;
       if (canvas.clientWidth < 681)
       {
+        movil = true;
         controls.minDistance = 5.5 + canvas.clientWidth*0.015;
       }
       else {
+        movil = false;
         controls.minDistance = 8;
       }
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
