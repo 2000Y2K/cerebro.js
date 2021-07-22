@@ -4,8 +4,11 @@ import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/js
 import {GUI} from './dat.gui.module.js';
 
 
-
 function main() {
+
+
+
+
 
   const canvas = document.querySelector('#c');
   const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : true});
@@ -28,59 +31,69 @@ function main() {
   const mouse = new THREE.Vector2(1,1);
   var click = false;
   const reloj = new THREE.Clock();
-  var neuronasActivas = false;
   const datosEmpresas = [];
+  const llamadores = new Array(5);
   const lineas = [];
   var textureLoader = new THREE.TextureLoader( );
-  var drawCount = 0;
+  var drawCount = 10;
 
     
-    var materialNeurona = new THREE.PointsMaterial( { 
-    map: textureLoader.load( 'resources/sprites/electric.png'),
-    color: 0xffffff,
-    size: 0.016,
-    blending: THREE.AdditiveBlending,
+    var materialNeurona = new THREE.ShaderMaterial( { 
+      sizeAttenuation : false,
+    vertexShader: document.getElementById( 'vertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+    blending: THREE.MultiplyBlending,
     depthWrite: false,
-    depthTest: false,
-    transparent: true,
-    opacity: 1
+    side : THREE.DoubleSide,
+    depthTest: true,
+    transparent: true
   });
+
+
+  //   var materialNeurona = new THREE.PointsMaterial( { 
+  //   map: textureLoader.load( 'resources/sprites/electric.png'),
+  //   color: 0xffffff,
+  //   size: 0.016,
+  //   blending: THREE.AdditiveBlending,
+  //   depthWrite: false,
+  //   depthTest: false,
+  //   transparent: true
+  // });
+
 
 function hacerLinea(v1,v2,nombre)
 {
   var puntosMaximos = 1000;
   var linea;
-
-    
   var geometriaLinea = new THREE.BufferGeometry();
-  var posicionesLinea = new Float32Array(puntosMaximos*3)
-  const pos = [v1.x,v1.y,v1.z,
-               v2.x,v2.y,v2.z]
+  var posicionesLinea = new Float32Array(puntosMaximos*3);
+  var tamañosLinea = new Float32Array(puntosMaximos);
+  const pos = [v1.x,v1.y,v1.z,v2.x,v2.y,v2.z]
     
 
     const li = new THREE.Line3(new THREE.Vector3(pos[0],pos[1],pos[2]),new THREE.Vector3(pos[3],pos[4],pos[5]));
     const p = [];
+    const tamaños = []
     var posi = new THREE.Vector3();
-    //console.log(li.start,li.end)
     for(let i = 0;  i < puntosMaximos;i+= 1)
     {
       
       li.at(i/puntosMaximos,posi);
-      //console.log("at",i/puntosMaximos,posi);
+      tamaños.push(0.1 + Math.pow(i/puntosMaximos,2));
       p.push(posi.x,posi.y,posi.z);
     }
-    posicionesLinea.set(p)
+    posicionesLinea.set(p);
+    tamañosLinea.set(tamaños);
     geometriaLinea.setAttribute('position', new THREE.BufferAttribute(posicionesLinea,3));
+    geometriaLinea.setAttribute('size', new THREE.BufferAttribute(tamañosLinea,1));
     geometriaLinea.setDrawRange(0,drawCount);
-  
-    //var materialLinea = new THREE.LineBasicMaterial({depth:THREE.NeverDepth ,color:0xffffff, linewidth: 1000,side: THREE.DoubleSide});
-    //var materialLinea = new THREE.PointsMaterial()
     linea = new THREE.Points(geometriaLinea,materialNeurona);
-    linea.renderOrder = 5;
-    //console.log(linea)
+    linea.renderOrder = 1;
+    console.log(linea)
     linea.geometry.attributes.position.needsUpdate = true;
+    linea.geometry.attributes.size.needsUpdate = true;
     linea.name = nombre;
-    linea.visible = false;
+    //linea.visible = false;
     lineas.push(linea);
     return linea;
 }
@@ -88,7 +101,89 @@ function hacerLinea(v1,v2,nombre)
 /////////////////////////////////
 
 
-  
+  function cargarLineas()
+  {
+    cerebro.add(hacerLinea(new THREE.Vector3(1.5973891019821167,2.0125176906585693,-0.03765719383955002),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.6467902660369873,1.4805809259414673,0.3312768340110779),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.4117016792297363,1.450126051902771,0.7401993870735168),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.2726730108261108,2.066633939743042,0.5528200268745422),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.3935871124267578,1.8805689811706543,0.6695277094841003),new 
+      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
+
+      //fundacion
+      cerebro.add(hacerLinea(new THREE.Vector3(0.46760958433151245,2.3373422622680664,-1.0832387208938599),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.5070222020149231,1.9389396905899048,-1.469927430152893),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.03840962424874306,2.2606191635131836,-1.1879698038101196),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+      cerebro.add(hacerLinea(new THREE.Vector3(0.7905917167663574,2.07202410697937,-1.0436018705368042),new 
+      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
+
+
+      //cemdoe
+      cerebro.add(hacerLinea(new THREE.Vector3(2.0445218086242676,0.4920673668384552,0.2811475098133087),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(1.7614332437515259,0.28793832659721375,0.18535791337490082),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.359876871109009,-0.6742686033248901,0.1872536540031433),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.3025527000427246,-0.05049416795372963,0.4632873833179474),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.1804606914520264,0.5601081848144531,0.5822124481201172),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.027777671813965,-0.10820109397172928,-0.01572643406689167),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+      cerebro.add(hacerLinea(new THREE.Vector3(2.167001724243164,-0.5073717832565308,-0.052586425095796585),new 
+      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
+
+      //arium
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
+      THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
+      THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
+      THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
+      THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
+    
+
+      //afinis
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.05097797140479088,-2.4827380180358887,-0.06569018959999084),new 
+      THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.35139283537864685,-2.6888515949249268,-0.2940196096897125),new 
+      THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.9512643218040466,-2.451958179473877,-0.315106064081192),new 
+      THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.7279337644577026,-2.285250663757324,-0.7158091068267822),new 
+      THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-0.1506601870059967,-2.3690030574798584,-0.5677984952926636),new 
+      THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+
+
+        
+      cerebro.add(hacerLinea(new THREE.Vector3(-1.7776892185211182,0.2768135666847229,0.19461233913898468),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.245647430419922,-0.7893467545509338,0.03888602554798126),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.1439945697784424,0.3859260678291321,0.32796695828437805),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.0276832580566406,-0.1640051305294037,-0.010092661716043949),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.3254170417785645,-0.7307484745979309,0.4136829972267151),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.3007712364196777,-0.13052760064601898,0.4617513418197632),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+      cerebro.add(hacerLinea(new THREE.Vector3(-2.179304599761963,0.5281762480735779,0.6159335970878601),new 
+      THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
+
+
+
+  }
 
 
 
@@ -117,16 +212,12 @@ function hacerLinea(v1,v2,nombre)
 
   function cargarEsferas()
   {
-          gltfLoader.load('resources/models/IPoint A.gltf', (gltf) => {
-        const root = gltf.scene;
-        const esfera = root.getObjectByName("IPoint_A");
-        esferas.push(hacerEsfera(esfera,0.250,4.840,-0.250,"A"));
-        esferas.push(hacerEsfera(esfera,-0.950,6.820,-0.130,"B"));
-        esferas.push(hacerEsfera(esfera,-1.440,3.210,-2.780,"C"));
-        esferas.push(hacerEsfera(esfera,0.990,5.370,-2.260,"D"));
-        esferas.push(hacerEsfera(esfera,-3.770,5.370,-2.390,"E"))
-        esferas.push(hacerEsfera(esfera,-1.550,5.910,-5.160,"F"));
-    });
+        esferas.push(hacerEsfera(1.6,4.46,2.14,"A"));
+        esferas.push(hacerEsfera(0.42,6.4,2.29,"B"));
+        esferas.push(hacerEsfera(-0.05,2.8,-0.26,"C"));
+        esferas.push(hacerEsfera(2.37,4.94,0.15,"D"));
+        esferas.push(hacerEsfera(-2.38,4.95,0.02,"E"))
+        esferas.push(hacerEsfera(-0.16,5.52,-2.72,"F"));
   }
 
   function cargarEtiquetas()
@@ -143,14 +234,16 @@ function hacerLinea(v1,v2,nombre)
   function hacerEtiqueta(x,y,z,texto)
   {
 
-    const map = new THREE.TextureLoader().load( 'resources/'+texto+'.png');
+    const map = new THREE.TextureLoader().load( 'resources/sprites/'+texto+'.png');
     const labelMaterial = new THREE.SpriteMaterial( { map: map} );
     const label = new THREE.Sprite(labelMaterial);
+
     label.renderOrder = 3;
     label.position.x = x;
     label.position.y = y;
     label.position.z = z;
-    //console.log(label.position);
+    label.name = texto
+    //console.log(label.position); // escale 0.42
     return label;
   }
 
@@ -168,7 +261,7 @@ function hacerLinea(v1,v2,nombre)
   ///// MOVIMIENTO
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, -5, 0);
-  controls.autoRotate = true;
+  //controls.autoRotate = true;
   controls.autoRotateSpeed = 1.5;
   controls.enableDamping = true;
   controls.enableZoom = true;
@@ -309,15 +402,31 @@ function hacerLinea(v1,v2,nombre)
   }
 
   
-  function hacerEsfera(mesh,x,y,z,nombre)
+  function hacerEsfera(x,y,z,nombre)
   {
-    const esfera = mesh.clone();
+    const esfera = new THREE.Mesh(new THREE.SphereGeometry(0.04), new THREE.MeshBasicMaterial({
+      depthWrite : true,
+      depthTest : true,
+      transparent: true,
+      opacity: 0.8,
+      color: 0xffffff
+    }));
     esfera.position.set(x,y,z);
     esfera.renderOrder = 1;
-    esfera.material.depthWrite = true;
+    // for (let i = 1; i < 6; i++)
+    // {
+    //  llamadores[i-1] = hacerEtiqueta(0,0,0,"PNG" + i)
+    //  esfera.add(llamadores[i-1]);
+    // }
     esfera.name = nombre
+     esfera.add(hacerEtiqueta(0,0,0,"PNG1"))
+     //console.log(hacerEtiqueta(0,0,0,"PNG1"))
+    // esfera.add(hacerEtiqueta(0,0,0,"PNG2"))
+    // esfera.add(hacerEtiqueta(0,0,0,"PNG3"))
+    // esfera.add(hacerEtiqueta(0,0,0,"PNG4"))
+    // esfera.add(hacerEtiqueta(0,0,0,"PNG5"))
     scene.add(esfera);
-
+console.log(llamadores)
     return esfera;
   }
 
@@ -340,88 +449,9 @@ function hacerLinea(v1,v2,nombre)
       cargarHighlight("D",3);
       cargarHighlight("E",4);
       cargarHighlight("F",5);
-
+      cargarLineas();
       //atrio
-      cerebro.add(hacerLinea(new THREE.Vector3(1.5973891019821167,2.0125176906585693,-0.03765719383955002),new 
-      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
-      cerebro.add(hacerLinea(new THREE.Vector3(1.6467902660369873,1.4805809259414673,0.3312768340110779),new 
-      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
-      cerebro.add(hacerLinea(new THREE.Vector3(1.4117016792297363,1.450126051902771,0.7401993870735168),new 
-      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
-      cerebro.add(hacerLinea(new THREE.Vector3(1.2726730108261108,2.066633939743042,0.5528200268745422),new 
-      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
-      cerebro.add(hacerLinea(new THREE.Vector3(1.3935871124267578,1.8805689811706543,0.6695277094841003),new 
-      THREE.Vector3(1.5352518558502197,2.0784173011779785,0.5277711153030396),"atrio"));
-
-      //fundacion
-      cerebro.add(hacerLinea(new THREE.Vector3(0.46760958433151245,2.3373422622680664,-1.0832387208938599),new 
-      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
-      cerebro.add(hacerLinea(new THREE.Vector3(0.5070222020149231,1.9389396905899048,-1.469927430152893),new 
-      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
-      cerebro.add(hacerLinea(new THREE.Vector3(0.03840962424874306,2.2606191635131836,-1.1879698038101196),new 
-      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
-      cerebro.add(hacerLinea(new THREE.Vector3(0.7905917167663574,2.07202410697937,-1.0436018705368042),new 
-      THREE.Vector3(0.42177948355674744,2.2266714572906494,-1.3494890928268433),"fundacion"));
-
-
-      //cemdoe
-      cerebro.add(hacerLinea(new THREE.Vector3(2.0445218086242676,0.4920673668384552,0.2811475098133087),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(1.7614332437515259,0.28793832659721375,0.18535791337490082),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(2.359876871109009,-0.6742686033248901,0.1872536540031433),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(2.3025527000427246,-0.05049416795372963,0.4632873833179474),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(2.1804606914520264,0.5601081848144531,0.5822124481201172),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(2.027777671813965,-0.10820109397172928,-0.01572643406689167),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-      cerebro.add(hacerLinea(new THREE.Vector3(2.167001724243164,-0.5073717832565308,-0.052586425095796585),new 
-      THREE.Vector3(2.3061206340789795,0.11670234799385071,0.1014540046453476),"cemdoe"));
-
-      //arium
-        cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
-        THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
-        cerebro.add(hacerLinea(new THREE.Vector3(-0.06889987736940384,-0.941813051700592,2.757169723510742),new 
-        THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
-        cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
-        THREE.Vector3(0.46587860584259033,-0.13879349827766418,1.8124727010726929),"arium"));
-        cerebro.add(hacerLinea(new THREE.Vector3(-0.04611355438828468,0.34187862277030945,1.0564467906951904),new 
-        THREE.Vector3(-0.5834723114967346,-0.11224670708179474,1.7812467813491821),"arium"));
       
-
-        //afinis
-        cerebro.add(hacerLinea(new THREE.Vector3(-0.05097797140479088,-2.4827380180358887,-0.06569018959999084),new 
-         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-0.35139283537864685,-2.6888515949249268,-0.2940196096897125),new 
-         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-0.9512643218040466,-2.451958179473877,-0.315106064081192),new 
-         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-0.7279337644577026,-2.285250663757324,-0.7158091068267822),new 
-         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-0.1506601870059967,-2.3690030574798584,-0.5677984952926636),new 
-         THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
-
-
-         
-         cerebro.add(hacerLinea(new THREE.Vector3(-1.7776892185211182,0.2768135666847229,0.19461233913898468),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.245647430419922,-0.7893467545509338,0.03888602554798126),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.1439945697784424,0.3859260678291321,0.32796695828437805),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.0276832580566406,-0.1640051305294037,-0.010092661716043949),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.3254170417785645,-0.7307484745979309,0.4136829972267151),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.3007712364196777,-0.13052760064601898,0.4617513418197632),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-         cerebro.add(hacerLinea(new THREE.Vector3(-2.179304599761963,0.5281762480735779,0.6159335970878601),new 
-         THREE.Vector3(-2.3088932037353516,0.01805860549211502,0.08583687245845795),"allegra"));
-
-
-
 
 
       wires.transparent = false;
@@ -491,9 +521,9 @@ function hacerLinea(v1,v2,nombre)
   } 
 
   function render(tiempo) {
-    tiempo *= 0.001;
+    tiempo /= 1000;
+    var delta = reloj.getDelta();
     ///// RAYCASTER
-    var delta;
     raycaster.setFromCamera(mouse, camera);
     const intersecados = raycaster.intersectObjects(scene.children);
     highlights.forEach((highlight) => 
@@ -505,6 +535,22 @@ function hacerLinea(v1,v2,nombre)
       }
     });
 
+        
+    esferas.forEach((esfera) => {
+      esfera.children.forEach((llamador) => {
+        var tamaño = llamador.scale;
+        llamador.scale.set(tamaño.x+delta,tamaño.y+delta,tamaño.z+delta)
+        if (llamador.material.opacity < 0 )
+        {
+          console.log(llamador)
+          llamador.material.opacity = 1;
+          llamador.scale.set(0.42,0.42,0.42);
+        }
+        llamador.material.opacity -= delta;
+          
+      } )
+    })
+
     // if(materialNeurona && materialNeurona.opacity === 1)
     // {
     //   materialNeurona.opacity = 0;
@@ -515,16 +561,18 @@ function hacerLinea(v1,v2,nombre)
     }
     else if ( controls.autoRotate === false)
       {
-         controls.autoRotate = true;
+         //controls.autoRotate = true;
       }
 
     //  console.log(contenedorInformacion.style)
 
     lineas.forEach((linea) => {
       linea.visible = false;
+      //console.log(linea)
       drawCount = ( drawCount + 1 ) % 1000;
-      linea.geometry.setDrawRange( drawCount - 300, drawCount );
+      linea.geometry.setDrawRange(drawCount - 300, drawCount );
       linea.geometry.attributes.position.needsUpdate = true;
+      linea.geometry.attributes.size.needsUpdate = true;
     });
 
     if (intersecados.length)

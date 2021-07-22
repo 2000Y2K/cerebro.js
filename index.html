@@ -79,12 +79,72 @@
   <body>
     <div id="container">
       <canvas id="c"></canvas>
+      <script type="x-shader/x-vertex" id="vertexshader">
 
+
+        uniform float time;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        varying float vOpacity;
+        attribute float size;
+        attribute vec3 customColor;
+        attribute float opacity;
+        varying vec3 vColor;
+  
+        void main() {
+  
+
+          vOpacity = opacity;
+          vPosition = position;
+          vec4 mvPosition = modelViewMatrix * vec4( position, 1. );
+  
+          gl_PointSize = size * 2. ;
+  
+          gl_Position = projectionMatrix * mvPosition;
+  
+        }
+  
+      </script>
+  
+      <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform float time;
+        uniform float progress;
+        uniform sampler2D texture1;
+        uniform vec4 resolution;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        varying float vOpacity;
+        float PI = 3.141592653589793238;
+        
+        void main()	{
+          vec2 uv = vec2(gl_PointCoord.x, 1. - gl_PointCoord.y);
+          vec2 cUV = 1.*uv - 1.;
+          vec3 originalColor = vec3(255./255.,255./255.,255./255.);
+        
+          vec4 color = vec4(0.08);
+        
+          color.rgb = min(vec3(10.),color.rgb);
+         
+        
+          color.rgb  *= originalColor;
+          
+          float disc = length(cUV);
+        
+          color *= vOpacity;
+        
+          color.a = min(1.,color.a)*10. ;
+          // vec2 newUV = (vUv - vec2(0.5))*resolution.zw + vec2(0.5);
+          gl_FragColor = vec4(1. - disc,0.,0.,1.)* vOpacity;
+          gl_FragColor = vec4(color.rgb,color.a);
+        }
+  
+      </script>
   
       <div id="informacion">
         <a href="/contacto"><image style="position:fixed;left:3vw;top:75vh" src="resources/contacto.png"></image></a>
         <div style="padding : 5vw">
-        <image id="imagen" onclick="getElementById('informacion').style.visibility =`hidden`;getElementById('menues').style.visibility =`visible`" src="/resources/cruz.png"></image>
+        <image id="imagen" ontouchstart="getElementById('informacion').style.visibility =`hidden`;getElementById('menues').style.visibility =`visible`
+        " onclick="getElementById('informacion').style.visibility =`hidden`;getElementById('menues').style.visibility =`visible`" src="/resources/cruz.png"></image>
         <image style="width:145px;height:95px; position:relative; right:4.8vw "src="resources/integra.png"></image>
         <h1 id="tituloInfo">NUESTRO ECOSISTEMA</h1>
         <p class="parrafoInfo">Brindamos el apoyo necesario a instituciones públicas y privadas para lograr la transformación del sistema de salud dominicano,
