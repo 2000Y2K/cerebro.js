@@ -319,6 +319,11 @@ function hacerEtiqueta(x,y,z,texto)
   const labelMaterial = new THREE.SpriteMaterial( { map: map} );
   const label = new THREE.Sprite(labelMaterial);
 
+  if(texto === "fundacion")
+  {
+    console.log(label)
+    label.scale.set(1.3,1.3,1.3);
+  }
   label.renderOrder = 3;
   label.position.x = x;
   label.position.y = y;
@@ -434,6 +439,7 @@ function cargarParticulas()
     depthTest:true,
     transparent:true,
     depthWrite:true,
+    blending: THREE.AdditiveBlending,
     color: 0xffffff,
   });
   for (var i = 0; i < 1000; i++) {
@@ -617,7 +623,7 @@ function render(tiempo) {
   }
 
   //particle.rotation.x += 0.0000;
-  particle.rotation.y += 0.0001;
+  particle.rotation.y += 0.002;
   controls.update()
   renderer.render(scene, camera);
   requestAnimationFrame(render);
