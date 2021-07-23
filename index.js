@@ -75,6 +75,7 @@ const particle = new THREE.Object3D();
   controls.autoRotate = true;
   controls.autoRotateSpeed = 1.5;
   controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
   controls.enableZoom = true;
   controls.minDistance = 8;
   controls.maxDistance = 10;
@@ -440,7 +441,7 @@ function cargarParticulas()
     transparent:true,
     depthWrite:true,
     blending: THREE.AdditiveBlending,
-    color: 0xffffff,
+    color: 0x37b827,
   });
   for (var i = 0; i < 1000; i++) {
     var mesh = new THREE.Mesh(geometry, material);
@@ -623,7 +624,7 @@ function render(tiempo) {
   }
 
   //particle.rotation.x += 0.0000;
-  particle.rotation.y += 0.002;
+  particle.rotation.y -= 0.005;
   controls.update()
   renderer.render(scene, camera);
   requestAnimationFrame(render);
