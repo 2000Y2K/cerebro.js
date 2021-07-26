@@ -76,7 +76,7 @@ const particle = new THREE.Object3D();
   controls.autoRotate = true;
   controls.autoRotateSpeed = 1.5;
   controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
+  controls.dampingFactor = 0.05;
   controls.enableZoom = true;
   controls.minDistance = 8;
   controls.maxDistance = 10;
@@ -311,7 +311,7 @@ function cargarEtiquetas()
   cerebro.add(hacerEtiqueta(2.530,0.180,-0.170,"cemdoe"));
   cerebro.add(hacerEtiqueta(-0.140,-2.730,-0.710,"afinis"));
   cerebro.add(hacerEtiqueta(-2.510,0.030,-0.170,"allegra"));
-  cerebro.add(hacerEtiqueta(0.4,2.260,-1.690,"fundacion"));
+  cerebro.add(hacerEtiqueta(0.4,2.260,-1.590,"fundacion"));
 
 }
 
@@ -321,12 +321,6 @@ function hacerEtiqueta(x,y,z,texto)
   const map = new THREE.TextureLoader().load( 'resources/sprites/'+texto+'.png');
   const labelMaterial = new THREE.SpriteMaterial( { map: map} );
   const label = new THREE.Sprite(labelMaterial);
-
-  if(texto === "fundacion")
-  {
-    console.log(label)
-    label.scale.set(1.3,1.3,1.3);
-  }
   label.renderOrder = 3;
   label.position.x = x;
   label.position.y = y;
@@ -487,10 +481,11 @@ function render(tiempo) {
   if (contenedorInformacion.style.cssText === "visibility: visible;")
   {
     controls.autoRotate = false;
-    //highlightsActivos = true
+    particle.rotation.y += 0.01;
   }
   else if ( controls.autoRotate === false)
     {
+       particle.rotation.y += 0.01;
        controls.autoRotate = true;
        highlightActivo = "ninguno";
     }
@@ -504,7 +499,7 @@ function render(tiempo) {
 
     //console.log(linea)
     drawCount = ( drawCount + 1 ) % 1000;
-    linea.geometry.setDrawRange(drawCount - 300, drawCount );
+    linea.geometry.setDrawRange(drawCount - 200, drawCount );
     linea.geometry.attributes.position.needsUpdate = true;
     linea.geometry.attributes.size.needsUpdate = true;
   });
