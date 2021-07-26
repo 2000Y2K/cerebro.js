@@ -443,7 +443,7 @@ function cargarParticulas()
     transparent:true,
     depthWrite:true,
     blending: THREE.AdditiveBlending,
-    color: 0x37b827,
+    color: 0x1fc2a7,
   });
   for (var i = 0; i < 1000; i++) {
     var mesh = new THREE.Mesh(geometry, material);
