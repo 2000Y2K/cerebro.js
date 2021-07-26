@@ -34,6 +34,7 @@ let wires;
 let cerebros;
 let cerebro;
 var movil;
+var highlightActivo;
 const esferas = [];
 const highlights = new Array(7);
 const nombres =["A","B","C","D","E","F"];
@@ -202,15 +203,15 @@ function cargarLineas()
 
     //afinis
     cerebro.add(hacerLinea(new THREE.Vector3(-0.05097797140479088,-2.4827380180358887,-0.06569018959999084),new 
-    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"affinis"));
     cerebro.add(hacerLinea(new THREE.Vector3(-0.35139283537864685,-2.6888515949249268,-0.2940196096897125),new 
-    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"affinis"));
     cerebro.add(hacerLinea(new THREE.Vector3(-0.9512643218040466,-2.451958179473877,-0.315106064081192),new 
-    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"affinis"));
     cerebro.add(hacerLinea(new THREE.Vector3(-0.7279337644577026,-2.285250663757324,-0.7158091068267822),new 
-    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"affinis"));
     cerebro.add(hacerLinea(new THREE.Vector3(-0.1506601870059967,-2.3690030574798584,-0.5677984952926636),new 
-    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"afinis"));
+    THREE.Vector3(-0.18373939394950867,-2.6539626121520996,-0.4795656204223633),"affinis"));
 
 
       
@@ -268,6 +269,7 @@ function abrirInfo(nombre)
   contenedorMenues.style.visibility = `hidden`;
   contenedorInformacion.style.visibility = `visible`;
   const info = contenedorInformacion.querySelector("#infoInterna");
+  highlightActivo = nombre;
   switch(nombre)
   {
     case "allegra":
@@ -446,7 +448,7 @@ function cargarParticulas()
   for (var i = 0; i < 1000; i++) {
     var mesh = new THREE.Mesh(geometry, material);
     mesh.renderOrder= 0;
-    mesh.position.set(Math.random()*20-7, Math.random()*20, Math.random()*15-7);
+    mesh.position.set(Math.random()*20-7, Math.random()*20, Math.random()*20-7);
     //mesh.position.multiplyScalar(Math.random() * 5,Math.random() * 5,Math.random() * 5);
     mesh.rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
     particle.add(mesh);
@@ -461,7 +463,7 @@ function render(tiempo) {
   const intersecados = raycaster.intersectObjects(scene.children);
   highlights.forEach((highlight) => 
   {
-    if(highlight.visible === true)
+    if(highlight.visible === true && highlightActivo === "ninguno")
     {
        reloj.start()
       highlight.visible = false
@@ -485,15 +487,21 @@ function render(tiempo) {
   if (contenedorInformacion.style.cssText === "visibility: visible;")
   {
     controls.autoRotate = false;
+    //highlightsActivos = true
   }
   else if ( controls.autoRotate === false)
     {
        controls.autoRotate = true;
+       highlightActivo = "ninguno";
     }
 
 
   lineas.forEach((linea) => {
-    linea.visible = false;
+    if (linea.name !=  highlightActivo)
+    {
+      linea.visible = false;
+    }
+
     //console.log(linea)
     drawCount = ( drawCount + 1 ) % 1000;
     linea.geometry.setDrawRange(drawCount - 300, drawCount );
@@ -507,10 +515,10 @@ function render(tiempo) {
       for (let intersecado of intersecados)
       {
         if(nombres.includes(intersecado.object.name) && intersecados[0].object == intersecado.object)
-        {
+        {console.log(highlightActivo);
             switch(intersecado.object.name)
             {
-
+              
               case "A":
                 highlights[1].visible = true;
                 controls.autoRotate = false;
@@ -591,7 +599,7 @@ function render(tiempo) {
                 highlights[4].visible = true;
                 controls.autoRotate = false;
                 lineas.forEach((linea) => {
-                  if (linea.name === "afinis")
+                  if (linea.name === "affinis")
                   {
                     linea.visible = true
                   }
@@ -624,7 +632,7 @@ function render(tiempo) {
   }
 
   //particle.rotation.x += 0.0000;
-  particle.rotation.y -= 0.005;
+  particle.rotation.y += 0.005;
   controls.update()
   renderer.render(scene, camera);
   requestAnimationFrame(render);
@@ -632,10 +640,9 @@ function render(tiempo) {
 
 
 
-function main() {
-  scene.background = textureLoader.load("resources/degrade.png");
-
-
+function main()
+ {
+    scene.background = textureLoader.load("resources/degrade.png");
 
     gltfLoader.load('resources/models/Brain.gltf', (gltf) => {
       const root = gltf.scene;
@@ -683,9 +690,6 @@ function main() {
       controls.update();
     });
   
-
-
- 
   requestAnimationFrame(render);
 }
 
