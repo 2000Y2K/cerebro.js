@@ -34,7 +34,7 @@ let wires;
 let cerebros;
 let cerebro;
 var movil;
-var highlightActivo;
+var highlightActivo = "ninguno";
 const esferas = [];
 const highlights = new Array(7);
 const nombres =["A","B","C","D","E","F"];
@@ -241,6 +241,27 @@ function cargarHighlight(nombre,index)
     highlight.material.opacity = 0.5;
     highlight.position.set(0,0,0);
     highlight.rotation.set(0,0,0);
+    switch(nombre)
+    {
+      case "A":
+        nombre = "fundacion";
+        break;
+      case "B":
+        nombre = "atrio";
+        break;
+      case "C":
+        nombre = "cemdoe";
+        break;
+      case "D":
+        nombre = "arium";
+        break;
+      case "E":
+        nombre = "affinis";
+        break;
+      case "F":
+        nombre = "allegra";
+        break;
+    }
     highlight.name = "highlight_"+nombre;
     highlights[index] = highlight;
     cerebro.add(highlight);
@@ -457,7 +478,7 @@ function render(tiempo) {
   const intersecados = raycaster.intersectObjects(scene.children);
   highlights.forEach((highlight) => 
   {
-    if(highlight.visible === true && highlightActivo === "ninguno")
+    if(highlight.visible === true)
     {
        reloj.start()
       highlight.visible = false
@@ -487,7 +508,7 @@ function render(tiempo) {
     {
        particle.rotation.y += 0.01;
        controls.autoRotate = true;
-       highlightActivo = "ninguno";
+       highlightActivo = "ninguno"
     }
 
 
@@ -515,29 +536,30 @@ function render(tiempo) {
             {
               
               case "A":
-                highlights[1].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "atrio")
-                  {
-                    linea.visible = true
-                  }
-                })
+                  highlights[1].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "atrio")
+                    {
+                      linea.visible = true
+                    }
+                  })
                 if(click || (reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("A")
                   abrirInfo("atrio");
+                  
                 }
                 break;
               case "B":
-                highlights[0].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "fundacion")
-                  {
-                    linea.visible = true
-                  }
-                })
+                  highlights[0].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "fundacion")
+                    {
+                      linea.visible = true
+                    }
+                  })
                 if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("B")
@@ -545,14 +567,14 @@ function render(tiempo) {
                 }
                 break;
               case "C":
-                highlights[3].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "arium")
-                  {
-                    linea.visible = true
-                  }
-                })
+                  highlights[3].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "arium")
+                    {
+                      linea.visible = true
+                    }
+                  })
                 if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("C")
@@ -560,14 +582,15 @@ function render(tiempo) {
                 }
                 break;
               case "D":
-                highlights[2].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "cemdoe")
-                  {
-                    linea.visible = true
-                  }
-                })
+                  highlights[2].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "cemdoe")
+                    {
+                      linea.visible = true
+                    }
+                  })
+
                 if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
 
@@ -576,14 +599,16 @@ function render(tiempo) {
                 }
                 break;
               case "E":
-                highlights[5].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "allegra")
-                  {
-                    linea.visible = true
-                  }
-                })
+
+                  highlights[5].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "allegra")
+                    {
+                      linea.visible = true
+                    }
+                  })
+
                 if(click || (reloj.getElapsedTime() > 1  && movil)) 
                 {
                   console.log("E")
@@ -591,14 +616,15 @@ function render(tiempo) {
                 }
                   break;
               case "F":
-                highlights[4].visible = true;
-                controls.autoRotate = false;
-                lineas.forEach((linea) => {
-                  if (linea.name === "affinis")
-                  {
-                    linea.visible = true
-                  }
-                })
+                  highlights[4].visible = true;
+                  controls.autoRotate = false;
+                  lineas.forEach((linea) => {
+                    if (linea.name === "affinis")
+                    {
+                      linea.visible = true
+                    }
+                  })
+
                 if(click ||(reloj.getElapsedTime() > 1  && movil))
                 {
                   console.log("F")
@@ -610,6 +636,14 @@ function render(tiempo) {
         }
       }
     }
+
+    highlights.forEach((highlight) => 
+    {
+      if(highlight.name === "highlight_"+highlightActivo)
+      {
+        highlight.visible = true;
+      }
+    });
 
   if (resizeRendererToDisplaySize(renderer)) { 
     const canvas = renderer.domElement;

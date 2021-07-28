@@ -43,8 +43,7 @@ line-height: 1.8;
 color:rgb(27, 165, 215);
 font-size: 1.4em;
 }
-#infoInterna{
-}
+
 #cerrar{
 cursor:pointer;
 position: absolute;
@@ -79,28 +78,87 @@ padding: 0.5em 1em;
 #contacto{
 position:fixed;
 left:3vw;
-top:75vh
+top:75vh;
 }
+
+#slogan{
+    color:rgb(203, 212, 215); 
+    position:fixed;
+    left: 5%;
+    top:75%;
+    height: 30%
+}
+
+#integra{
+    width:145px;
+    height:95px
+}
+
+
 @media only screen and (max-width: 681px) {
     #menues{
         font-family: GothamPro-Light;
-        font-size:1em;
+        font-size:1.2em;
+
         visibility:visible;
         display:flex;
         justify-content:center;
-        width: 100%;
+        width: 50%;
+        top: 2%;
         }
     .menu{
-        justify-self: center;
+        position: relative; 
+        left: 49%;
+        justify-self: center
     }
-    }   
     #informacion {
         font-family: GothamPro-Light;
-        position:fixed;
-        left: 65%; 
-        width: 35%;
+        position:fixed; 
+        width: 100%;
         height: 100%;
+        top:50%;
+        left:0%;    
         visibility: hidden;
-        background-color: rgb(184, 0, 0);
+        background-color: rgb(255, 255, 255);
+        display:flex;
         }
+    #slogan{
+        color:rgb(203, 212, 215); 
+        position:fixed;
+        left: 25%;
+        top:85%;
+        width: 70%;
+    }
+
+    #contacto{
+        position:fixed;
+        right: 20%;
+        top:2%;
+        width: 30%;
+        }
+
+    #cerrar{
+        cursor:pointer;
+        position: absolute;
+        left: 75%;
+        top: -35px;
+        margin: 0 0;
+        padding: 0;
+        z-index: 10;
+        }
+
+    .parrafoInfo{
+        font-size: 0.8em;
+        line-height: 1.8;
+        }
+
+    #tituloInfo{
+    color:rgb(27, 165, 215);
+    font-size: 1em;
+    }
+    
+    #integra{
+        width:87px;
+        height:57px
+    }
   }
