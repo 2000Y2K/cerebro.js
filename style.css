@@ -127,13 +127,13 @@ top:75vh;
         position:fixed;
         left: 25%;
         top:85%;
-        width: 70%;
+        width: 200px;
     }
 
     #contacto{
         position:fixed;
-        right: 20%;
-        top:2%;
+        right: 22%;
+        top:3%;
         width: 30%;
         }
 

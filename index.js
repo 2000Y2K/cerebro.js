@@ -56,8 +56,8 @@ var materialNeurona = new THREE.ShaderMaterial( {
   transparent: true
 });
 const scene = new THREE.Scene();
-var textureLoader = new THREE.TextureLoader(manager);
-scene.background = textureLoader.load("resources/degrade.png");
+//var textureLoader = new THREE.TextureLoader();
+scene.background = new THREE.TextureLoader().load("resources/degrade.png")
 document.body.appendChild(renderer.domElement);
 var rootHighligth;
 const particle = new THREE.Object3D();
