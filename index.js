@@ -57,6 +57,7 @@ var materialNeurona = new THREE.ShaderMaterial( {
 });
 const scene = new THREE.Scene();
 var textureLoader = new THREE.TextureLoader(manager);
+scene.background = textureLoader.load("resources/degrade.png");
 document.body.appendChild(renderer.domElement);
 var rootHighligth;
 const particle = new THREE.Object3D();
@@ -671,7 +672,6 @@ function render(tiempo) {
 
 function main()
  {
-    scene.background = textureLoader.load("resources/degrade.png");
 
     gltfLoader.load('resources/models/Brain.gltf', (gltf) => {
       const root = gltf.scene;
