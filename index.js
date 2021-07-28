@@ -56,8 +56,8 @@ var materialNeurona = new THREE.ShaderMaterial( {
   transparent: true
 });
 const scene = new THREE.Scene();
-//var textureLoader = new THREE.TextureLoader();
-scene.background = new THREE.TextureLoader().load("resources/degrade.png")
+var textureLoader = new THREE.TextureLoader(manager);
+scene.background =textureLoader.load("resources/degrade.png")
 document.body.appendChild(renderer.domElement);
 var rootHighligth;
 const particle = new THREE.Object3D();
@@ -340,7 +340,7 @@ function cargarEtiquetas()
 function hacerEtiqueta(x,y,z,texto)
 {
 
-  const map = new THREE.TextureLoader().load( 'resources/sprites/'+texto+'.png');
+  const map = textureLoader.load( 'resources/sprites/'+texto+'.png');
   const labelMaterial = new THREE.SpriteMaterial( { map: map} );
   const label = new THREE.Sprite(labelMaterial);
   label.renderOrder = 3;
