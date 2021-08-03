@@ -3,29 +3,8 @@ import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/loaders/GLTFLoader.js';
 
 const manager = new THREE.LoadingManager();
-manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-
-  console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-
-};
-
-manager.onLoad = function ( ) {
-
-  console.log( 'Loading complete!');
-};
-
-function dumpObject(obj, lines = [], isLast = true, prefix = '') {
-  const localPrefix = isLast ? '└─' : '├─';
-  lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
-  const newPrefix = prefix + (isLast ? '  ' : '│ ');
-  const lastNdx = obj.children.length - 1;
-  obj.children.forEach((child, ndx) => {
-    const isLast = ndx === lastNdx;
-    dumpObject(child, lines, isLast, newPrefix);
-  });
-  return lines;
-}
-
+manager.onStart = ( url, itemsLoaded, itemsTotal ) => console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+manager.onLoad = ( ) => console.log( 'Loading complete!');
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas, antialias : true, alpha : true});
 const contenedorInformacion = document.querySelector('#informacion')
@@ -46,6 +25,7 @@ const reloj = new THREE.Clock();
 const datosEmpresas = [];
 const lineas = [];
 var drawCount = 10;
+var textureLoader = new THREE.TextureLoader(manager);
 var materialNeurona = new THREE.ShaderMaterial( { 
   vertexShader: document.getElementById( 'vertexshader' ).textContent,
   fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
@@ -55,9 +35,8 @@ var materialNeurona = new THREE.ShaderMaterial( {
   depthTest: true,
   transparent: true
 });
-const scene = new THREE.Scene();
-var textureLoader = new THREE.TextureLoader(manager);
-scene.background =textureLoader.load("resources/degrade.png")
+
+
 document.body.appendChild(renderer.domElement);
 var rootHighligth;
 const particle = new THREE.Object3D();
@@ -70,7 +49,8 @@ const particle = new THREE.Object3D();
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.set(10, 10, 20);
   /////
-
+  const scene = new THREE.Scene(camera);
+  scene.background =textureLoader.load("resources/degrade.png")
   ///// MOVIMIENTO
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(0, -5, 0);
@@ -290,30 +270,33 @@ function abrirInfo(nombre)
 {
   contenedorMenues.style.visibility = `hidden`;
   contenedorInformacion.style.visibility = `visible`;
-  const info = contenedorInformacion.querySelector("#infoInterna");
+  contenedorInformacion.querySelector("#infoInternaALLEGRA").style.display = `none`;
+  contenedorInformacion.querySelector("#infoInternaCEMDOE").style.display = `none`;
+  contenedorInformacion.querySelector("#infoInternaALIVIA").style.display = `none`;
+  contenedorInformacion.querySelector("#infoInternaATRIO").style.display = `none`;
+  contenedorInformacion.querySelector("#infoInternaARIUM").style.display = `none`;
+  contenedorInformacion.querySelector("#infoInternaAFFINIS").style.display = `none`;
   highlightActivo = nombre;
   switch(nombre)
   {
     case "allegra":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen  allegra </p>`;
+      contenedorInformacion.querySelector("#infoInternaALLEGRA").style.display = `contents`;
       break;
     case "cemdoe":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen cemdoe </p>`;
+      contenedorInformacion.querySelector("#infoInternaCEMDOE").style.display = `contents`;
       break;
     case "fundacion":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion  y imagen fundacion diabetes </p>`;
+      contenedorInformacion.querySelector("#infoInternaALIVIA").style.display = `contents`;
       break;
     case "atrio":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen atrio </p>`;
+      contenedorInformacion.querySelector("#infoInternaATRIO").style.display = `contents`;
       break;
     case "arium":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen arium </p>`;
+      contenedorInformacion.querySelector("#infoInternaARIUM").style.display = `contents`;
       break;        
     case "affinis":
-      info.innerHTML= `<p class="parrafoInfo"> Informacion y imagen affinis </p>`;
+      contenedorInformacion.querySelector("#infoInternaAFFINIS").style.display = `contents`;
       break;
-
-      
   }
 }
 function cargarEsferas()
@@ -334,6 +317,7 @@ function cargarEtiquetas()
   cerebro.add(hacerEtiqueta(-0.140,-2.730,-0.710,"afinis"));
   cerebro.add(hacerEtiqueta(-2.510,0.030,-0.170,"allegra"));
   cerebro.add(hacerEtiqueta(0.4,2.260,-1.590,"fundacion"));
+  camera.add(hacerEsfera(2,3,0,"F"))
 
 }
 
@@ -503,7 +487,7 @@ function render(tiempo) {
   if (contenedorInformacion.style.cssText === "visibility: visible;")
   {
     controls.autoRotate = false;
-    particle.rotation.y += 0.01;
+    particle.rotation.y -= 0.001;
   }
   else if ( controls.autoRotate === false)
     {
@@ -668,56 +652,58 @@ function render(tiempo) {
   requestAnimationFrame(render);
 }
 
+function iniciar()
+{
+  gltfLoader.load('resources/models/Brain.gltf', (gltf) => {
+    const root = gltf.scene;
 
+    wires = root.getObjectByName("BrainWire");
+    cerebro = root.getObjectByName("BrainSolid")
+    cerebros = root.getObjectByName('Brain');
+    cerebros.visible = false;
+    scene.add(cerebro);
+    scene.add(wires);
+
+    wires.transparent = false;
+    cerebro.material.depthWrite = true;
+    cerebro.material.opacity = 0.7;
+
+    gltfLoader.load('resources/models/Brain_light.gltf' , (gltf) => {
+      rootHighligth = gltf.scene;
+      cargarHighlight("A",0);
+      cargarHighlight("B",1);
+      cargarHighlight("C",2);
+      cargarHighlight("D",3);
+      cargarHighlight("E",4);
+      cargarHighlight("F",5);
+    });    
+  
+    cargarParticulas();
+    cargarEsferas();
+    cargarEtiquetas();
+    cargarLineas();
+    
+    //cerebro.material.dithering = true;
+    // compute the box that contains all the stuff
+    // from root and below
+    const box = new THREE.Box3().setFromObject(cerebro);
+
+    const boxSize = box.getSize(new THREE.Vector3()).length();
+    const boxCenter = box.getCenter(new THREE.Vector3());
+
+    // set the camera to frame the box
+    frameArea(boxSize * 0.025, boxSize, boxCenter, camera);
+
+    // update the Trackball controls to handle the new size
+    controls.target.copy(boxCenter);
+    controls.update();
+  });
+}
 
 function main()
  {
 
-    gltfLoader.load('resources/models/Brain.gltf', (gltf) => {
-      const root = gltf.scene;
-
-      
-      wires = root.getObjectByName("BrainWire");
-      cerebro = root.getObjectByName("BrainSolid")
-      cerebros = root.getObjectByName('Brain');
-      cerebros.visible = false;
-      scene.add(cerebro);
-      scene.add(wires);
-
-      wires.transparent = false;
-      cerebro.material.depthWrite = true;
-      cerebro.material.opacity = 0.7;
-
-      gltfLoader.load('resources/models/Brain_light.gltf' , (gltf) => {
-        rootHighligth = gltf.scene;
-        cargarHighlight("A",0);
-        cargarHighlight("B",1);
-        cargarHighlight("C",2);
-        cargarHighlight("D",3);
-        cargarHighlight("E",4);
-        cargarHighlight("F",5);
-      });    
-    
-      cargarParticulas();
-      cargarEsferas();
-      cargarEtiquetas();
-      cargarLineas();
-      
-      //cerebro.material.dithering = true;
-      // compute the box that contains all the stuff
-      // from root and below
-      const box = new THREE.Box3().setFromObject(cerebro);
-
-      const boxSize = box.getSize(new THREE.Vector3()).length();
-      const boxCenter = box.getCenter(new THREE.Vector3());
-
-      // set the camera to frame the box
-      frameArea(boxSize * 0.025, boxSize, boxCenter, camera);
-
-      // update the Trackball controls to handle the new size
-      controls.target.copy(boxCenter);
-      controls.update();
-    });
+  iniciar()
   
   requestAnimationFrame(render);
 }

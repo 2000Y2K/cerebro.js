@@ -1,3 +1,12 @@
+@font-face {
+    font-family: GothamPro-Light;
+    src: url(GothamPro-Light.woff);
+    }
+    @font-face {
+    font-family: GothamPro-Medium;
+    src: url(GothamPro-Medium.woff);
+    }
+
 html, body {
     height: 100%;
     margin: 0;
@@ -16,14 +25,7 @@ html, body {
   z-index: 1;
 position: absolute;
 }
-@font-face {
-font-family: GothamPro-Light;
-src: url(GothamPro-Light.woff);
-}
-@font-face {
-font-family: GothamPro-Medium;
-src: url(GothamPro-Medium.woff);
-}
+
 #informacion {
 font-family: GothamPro-Light;
 position:fixed;
